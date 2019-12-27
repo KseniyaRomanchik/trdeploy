@@ -1,0 +1,4 @@
+trdeploy
+terragrunt.hcl
+vendor
+.idea
