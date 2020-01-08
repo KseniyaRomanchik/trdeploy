@@ -2,3 +2,4 @@ trdeploy
 terragrunt.hcl
 vendor
 .idea
+cmd
