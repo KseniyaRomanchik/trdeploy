@@ -9,19 +9,19 @@ import (
 )
 
 func InitAction (c *cli.Context) error {
-	err := os.Remove(".terraform")
+	err := os.RemoveAll(".terraform")
 	if !os.IsNotExist(err) && err != nil {
 		cli.Exit("delete error", 86)
 		return fmt.Errorf("delete error1: %+v", err)
 	}
 
-	err = os.Remove(".terraform.tfstate")
+	err = os.RemoveAll(".terraform.tfstate")
 	if !os.IsNotExist(err) && err != nil {
 		cli.Exit("delete error", 86)
 		return fmt.Errorf("delete error2: %+v", err)
 	}
 
-	err = os.Remove(terragruntConfigName)
+	err = os.RemoveAll(terragruntConfigName)
 	if !os.IsNotExist(err) && err != nil {
 		cli.Exit("delete error", 86)
 		return fmt.Errorf("delete error3: %+v", err)

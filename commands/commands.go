@@ -29,7 +29,7 @@ var Commands = []*cli.Command{
 		UsageText: "*** apply ",
 		Usage:     "apply",
 		Flags:     flags.Flags,
-		Action:    commandAction(Apply),
+		Action:    commandAction(InitAction, Apply),
 	},
 	{
 		Name:      "destroy",
@@ -37,7 +37,7 @@ var Commands = []*cli.Command{
 		UsageText: "*** destroy ",
 		Usage:     "destroy",
 		Flags:     flags.Flags,
-		Action:    commandAction(Destroy),
+		Action:    commandAction(InitAction, Destroy),
 	},
 }
 
