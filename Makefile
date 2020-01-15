@@ -5,3 +5,7 @@ build:
 install: build
 	@bash -c "echo '*** delete ~/bin/trdeploy' ; rm -fr ~/bin/trdeploy "
 	@bash -c "echo '*** cp new trdeploy ';  cp cmd/trdeploy ~/bin/trdeploy"
+
+install_global: build
+	@bash -c "echo '*** delete /usr/bin/trdeploy' ; rm -fr /usr/bin/trdeploy "
+	@bash -c "echo '*** cp new trdeploy ';  cp cmd/trdeploy /usr/bin/trdeploy"
