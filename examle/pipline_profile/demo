@@ -1,0 +1,6 @@
+share_resources/network
+share_resources/rds_mysql
+share_resources/eks
+service/infra/loging/efk
+service/infra/monitoring/prometheus
+service/app/microservice-metrc
