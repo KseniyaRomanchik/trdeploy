@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	terragruntConfigName = "terragrunt.hcl"
+	terragruntConfigName  = "terragrunt.hcl"
 	terragruntConfigTempl = `remote_state {
 	backend = "s3"
 		config =  {
@@ -19,6 +19,10 @@ const (
 			profile = "%s"
 		}
 }`
+	Init    = "init"
+	Plan    = "plan"
+	Apply   = "apply"
+	Destroy = "destroy"
 )
 
 func CurrentDir() string {

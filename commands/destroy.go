@@ -4,19 +4,20 @@ import (
 	"fmt"
 	"github.com/urfave/cli/v2"
 	"os/exec"
+	"trdeploy/flags"
 )
 
-func Destroy(c *cli.Context) error {
-	prefix := c.String("prefix")
-	additionalArgs := c.String("additional_args")
-	ap := c.String("audit_profile")
-	wp := c.String("work_profile")
-	gvp := c.String("global_var_path")
-	mtfv := c.String("module_tfvars")
+func destroy(c *cli.Context) error {
+	prefix := c.String(flags.Prefix)
+	additionalArgs := c.String(flags.AdditionalArgs)
+	ap := c.String(flags.AuditProfile)
+	wp := c.String(flags.WorkProfile)
+	gvp := c.String(flags.GlobalVarPath)
+	mtfv := c.String(flags.ModuleTfvars)
 
 	cmdDestroy := exec.Command(
 		"terragrunt", "destroy",
-		"-var-file", fmt.Sprintf( "%s/common.tfvars", gvp),
+		"-var-file", fmt.Sprintf("%s/common.tfvars", gvp),
 		"-var-file", fmt.Sprintf("%s/%s.tfvars", gvp, wp),
 		"-var-file", mtfv,
 		"-var", fmt.Sprintf("prefix=%s", prefix),
@@ -27,7 +28,7 @@ func Destroy(c *cli.Context) error {
 
 	outDestroy, err := cmdDestroy.CombinedOutput()
 	if err != nil {
-		cli.Exit("terragrunt error", 86)
+		cli.Exit("terragrunt destroy error", 1)
 		return fmt.Errorf("terragrunt error: %+v \n %s", err, outDestroy)
 	}
 
