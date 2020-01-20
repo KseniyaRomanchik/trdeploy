@@ -23,38 +23,38 @@ func LoadFlags() error {
 	}
 
 	Flags = []cli.Flag{
-		&cli.StringFlag{
+		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:  Region,
 			Usage: "aws region",
 			Value: "us-west-2",
-		},
-		&cli.StringFlag{
+		}),
+		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:  DynamodbLockTable,
 			Usage: "terraform state-lock",
 			Value: "unitedsoft-terraform-state-backet-lock",
-		},
-		&cli.StringFlag{
+		}),
+		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:  S3StateBacket,
 			Usage: "terraform s3 state backet",
 			Value: "unitedsoft-terraform-state-backet",
-		},
-		&cli.StringFlag{
+		}),
+		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:  AuditProfile,
 			Usage: "aws-audit-profile",
 			Value: "default",
-		},
-		&cli.StringFlag{
+		}),
+		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:  OutPlanLog,
 			Usage: "out-plan-log",
-		},
-		&cli.StringFlag{
+		}),
+		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:  AdditionalArgs,
 			Usage: "additional-args",
-		},
-		&cli.StringFlag{
+		}),
+		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:  ModuleTfvars,
 			Usage: "name of module ftvars-file  (default  {aws-profile}.tfvars)",
-		},
+		}),
 		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:  GlobalVarPath,
 			Usage: "path  global var.tf (default from /etc/tdeploy.yaml)",
@@ -67,26 +67,26 @@ func LoadFlags() error {
 			Name:  BasePath,
 			Usage: "path  base var.tf (default from /etc/tdeploy.yaml)",
 		}),
-		&cli.StringFlag{
+		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:  Config,
 			Value: configPath,
-		},
-		&cli.StringFlag{
+		}),
+		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:  PlanFile,
 			Usage: "plan-file",
-		},
-		&cli.StringFlag{
+		}),
+		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:  DeployProfile,
 			Usage: "deploy-profile",
-		},
-		&cli.StringFlag{
+		}),
+		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:  Prefix,
 			Usage: "prefix",
-		},
-		&cli.StringFlag{
+		}),
+		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:  WorkProfile,
 			Usage: "work-profile",
-		},
+		}),
 	}
 
 	return nil
