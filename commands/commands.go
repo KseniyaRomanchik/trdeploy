@@ -76,12 +76,14 @@ func beforeAction(c *cli.Context) error {
 }
 
 func replaceModuleTfvars(c *cli.Context) {
-	mtv := c.String(flags.ModuleTfvars)
-	newMtv := fmt.Sprintf("var/%s", mtv)
+	var newMtv string
 
-	if c.IsSet(flags.ModuleTfvars) {
+	if !c.IsSet(flags.ModuleTfvars) {
 		wp := c.String(flags.WorkProfile)
 		newMtv = fmt.Sprintf("var/%s.tfvars", wp)
+	} else {
+		mtv := c.String(flags.ModuleTfvars)
+		newMtv = fmt.Sprintf("var/%s", mtv)
 	}
 
 	c.Set(flags.ModuleTfvars, newMtv)
