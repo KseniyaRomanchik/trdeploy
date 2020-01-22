@@ -5,7 +5,6 @@ import (
 	"github.com/urfave/cli/v2"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"trdeploy/flags"
 )
 
@@ -48,13 +47,8 @@ func initAction(c *cli.Context) error {
 		return fmt.Errorf("creating terragrunt config error: %+v", err)
 	}
 
-	cmdInit := exec.Command("terragrunt", "init", "--terragrunt-config", terragruntConfigName)
-
-	outInit, err := cmdInit.CombinedOutput()
-	if err != nil {
-		cli.Exit("terragrunt init error", 1)
-		return fmt.Errorf("terragrunt error: %+v \n %s", err, outInit)
-	}
-
-	return nil
+	return command([]string{
+		"init",
+		"--terragrunt-config", terragruntConfigName,
+	}, c)
 }

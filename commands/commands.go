@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
+	"io/ioutil"
+	"os/exec"
 	"trdeploy/flags"
 )
 
@@ -87,4 +89,31 @@ func replaceModuleTfvars(c *cli.Context) {
 	}
 
 	c.Set(flags.ModuleTfvars, newMtv)
+}
+
+func command(args []string, c *cli.Context) error {
+	if c.IsSet(flags.AdditionalArgs) {
+		args = append(args, c.String(flags.AdditionalArgs))
+	}
+
+	cmd := exec.Command("terragrunt", args...)
+	fmt.Printf("\n[command]: %s \n\n", cmd.String())
+
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		cli.Exit(fmt.Sprintf("terragrunt %s error: %s \n %+v", args[0], err, out), 1)
+		return fmt.Errorf("\nterragrunt %s error: %+v \n%s", args[0], err, out)
+	}
+
+	fmt.Printf("%s", out)
+
+	if c.IsSet(flags.OutPlanLog) {
+		err = ioutil.WriteFile(c.String(flags.OutPlanLog), []byte(out), 0777)
+		if err != nil {
+			cli.Exit("creating out plan log file error", 1)
+			return fmt.Errorf("creating out plan log file error: %+v", err)
+		}
+	}
+
+	return nil
 }
