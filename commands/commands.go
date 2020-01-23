@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
-	"io/ioutil"
+	"io"
+	"log"
+	"os"
 	"os/exec"
 	"trdeploy/flags"
 )
@@ -99,20 +101,25 @@ func command(args []string, c *cli.Context) error {
 	cmd := exec.Command("terragrunt", args...)
 	fmt.Printf("\n[command]: %s \n\n", cmd.String())
 
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		cli.Exit(fmt.Sprintf("terragrunt %s error: %s \n %+v", args[0], err, out), 1)
-		return fmt.Errorf("\nterragrunt %s error: %+v \n%s", args[0], err, out)
+	cmd.Stdout = os.Stdout
+	cmd.Stdin = os.Stdin
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		cli.Exit(fmt.Sprintf("terragrunt %s error: %s", args[0], err), 1)
+		return fmt.Errorf("\nterragrunt %s error: %s", args[0], err)
 	}
 
-	fmt.Printf("%s", out)
-
 	if c.IsSet(flags.OutPlanLog) {
-		err = ioutil.WriteFile(c.String(flags.OutPlanLog), []byte(out), 0777)
+		logFile, err := os.Create(c.String(flags.OutPlanLog))
 		if err != nil {
-			cli.Exit("creating out plan log file error", 1)
-			return fmt.Errorf("creating out plan log file error: %+v", err)
+			cli.Exit(fmt.Sprintf("creating out plan log file error: %s", err), 1)
+			return fmt.Errorf("creating out plan log file error: %s", err)
 		}
+		defer logFile.Close()
+
+		wrt := io.MultiWriter(os.Stdout, logFile)
+		log.SetOutput(wrt)
 	}
 
 	return nil
