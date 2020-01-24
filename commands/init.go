@@ -47,7 +47,7 @@ func initAction(c *cli.Context) error {
 		return fmt.Errorf("creating terragrunt config error: %+v", err)
 	}
 
-	return command([]string{
+	return execute([]string{
 		"init",
 		"--terragrunt-config", terragruntConfigName,
 	}, c)

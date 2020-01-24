@@ -13,7 +13,7 @@ func destroy(c *cli.Context) error {
 	gvp := c.String(flags.GlobalVarPath)
 	mtfv := c.String(flags.ModuleTfvars)
 
-	return command([]string{
+	return execute([]string{
 		"destroy",
 		"-var-file", fmt.Sprintf("%s/common.tfvars", gvp),
 		"-var-file", fmt.Sprintf("%s/%s.tfvars", gvp, wp),

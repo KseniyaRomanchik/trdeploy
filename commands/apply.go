@@ -15,10 +15,10 @@ func apply(c *cli.Context) error {
 	mtfv := c.String(flags.ModuleTfvars)
 
 	if c.IsSet(flags.PlanFile) {
-		return command([]string{"apply", planFile}, c)
+		return execute([]string{"apply", planFile}, c)
 	}
 
-	return command([]string{
+	return execute([]string{
 		"apply",
 		"-var-file", fmt.Sprintf("%s/common.tfvars", gvp),
 		"-var-file", fmt.Sprintf("%s/%s.tfvars", gvp, wp),

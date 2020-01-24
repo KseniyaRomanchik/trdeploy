@@ -76,7 +76,13 @@ func commandAction(actionFns ...func(c *cli.Context) error) func(c *cli.Context)
 func beforeAction(c *cli.Context) error {
 	replaceModuleTfvars(c)
 
-	return altsrc.InitInputSourceWithContext(flags.Flags, altsrc.NewYamlSourceFromFlagFunc("config"))(c)
+	mic, _ := altsrc.NewYamlSourceFromFlagFunc(configFileName)(c)
+
+	return altsrc.InitInputSourceWithContext(
+		c.App.Flags,
+		func (ctx *cli.Context) (altsrc.InputSourceContext, error) {
+			return prepareNestedInputSource(mic, c.String(flags.WorkProfile), c.App.Flags), nil
+		})(c)
 }
 
 func replaceModuleTfvars(c *cli.Context) {
@@ -93,7 +99,7 @@ func replaceModuleTfvars(c *cli.Context) {
 	c.Set(flags.ModuleTfvars, newMtv)
 }
 
-func command(args []string, c *cli.Context) error {
+func execute(args []string, c *cli.Context) error {
 	if c.IsSet(flags.AdditionalArgs) {
 		args = append(args, c.String(flags.AdditionalArgs))
 	}
