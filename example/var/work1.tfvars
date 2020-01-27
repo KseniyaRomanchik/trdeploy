@@ -1,5 +1,5 @@
 region="us-west-2"
-aws="work"
+aws="work1"
 env_dynamodb="trdeploy_env"
 app_dynamodb="trdeploy_app"
 share_resources_dynamodb="trdeploy_share_resources"
