@@ -3,3 +3,5 @@ terragrunt.hcl
 vendor
 .idea
 cmd
+
+example/share_resources/network/.terraform/

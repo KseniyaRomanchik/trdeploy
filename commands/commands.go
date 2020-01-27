@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
+	"io"
+	"log"
+	"os"
+	"os/exec"
 	"trdeploy/flags"
 )
 
@@ -72,7 +76,13 @@ func commandAction(actionFns ...func(c *cli.Context) error) func(c *cli.Context)
 func beforeAction(c *cli.Context) error {
 	replaceModuleTfvars(c)
 
-	return altsrc.InitInputSourceWithContext(flags.Flags, altsrc.NewYamlSourceFromFlagFunc("config"))(c)
+	mic, _ := altsrc.NewYamlSourceFromFlagFunc(configFileName)(c)
+
+	return altsrc.InitInputSourceWithContext(
+		c.App.Flags,
+		func (ctx *cli.Context) (altsrc.InputSourceContext, error) {
+			return prepareNestedInputSource(mic, c.String(flags.WorkProfile), c.App.Flags), nil
+		})(c)
 }
 
 func replaceModuleTfvars(c *cli.Context) {
@@ -87,4 +97,36 @@ func replaceModuleTfvars(c *cli.Context) {
 	}
 
 	c.Set(flags.ModuleTfvars, newMtv)
+}
+
+func execute(args []string, c *cli.Context) error {
+	if c.IsSet(flags.AdditionalArgs) {
+		args = append(args, c.String(flags.AdditionalArgs))
+	}
+
+	cmd := exec.Command("terragrunt", args...)
+	fmt.Printf("\n[command]: %s \n\n", cmd.String())
+
+	cmd.Stdout = os.Stdout
+	cmd.Stdin = os.Stdin
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		cli.Exit(fmt.Sprintf("terragrunt %s error: %s", args[0], err), 1)
+		return fmt.Errorf("\nterragrunt %s error: %s", args[0], err)
+	}
+
+	if c.IsSet(flags.OutPlanLog) {
+		logFile, err := os.Create(c.String(flags.OutPlanLog))
+		if err != nil {
+			cli.Exit(fmt.Sprintf("creating out plan log file error: %s", err), 1)
+			return fmt.Errorf("creating out plan log file error: %s", err)
+		}
+		defer logFile.Close()
+
+		wrt := io.MultiWriter(os.Stdout, logFile)
+		log.SetOutput(wrt)
+	}
+
+	return nil
 }

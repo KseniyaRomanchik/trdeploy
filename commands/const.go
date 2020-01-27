@@ -23,6 +23,8 @@ const (
 	Plan    = "plan"
 	Apply   = "apply"
 	Destroy = "destroy"
+
+	configFileName = "config"
 )
 
 func CurrentDir() string {
