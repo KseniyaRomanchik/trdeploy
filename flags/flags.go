@@ -12,6 +12,8 @@ var (
 )
 
 func LoadFlags() error {
+	cli.VersionPrinter = printVersion
+
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return err

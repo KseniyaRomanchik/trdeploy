@@ -1,6 +1,22 @@
+export IMAGE_NAME=golang:1.13.5-alpine3.11
+export WORKDIR=/go/src/trdeploy
+export COMMIT=$(shell git rev-parse HEAD)
+export DATE=$(shell date +%d-%m-%Y__%T)
 
 build:
-	@bash -c "echo '*** BUILD ***' ; docker run --env CGO_ENABLED=0 -ti --name tddeploy-build --rm -v $(PWD)\:/go/src/trdeploy golang\:1.13.5-alpine3.11 /bin/sh -c 'cd /go/src/trdeploy && mkdir -p cmd && go build -o ./cmd '"
+	@echo '*** BUILD ***'
+	@docker run --env CGO_ENABLED=0 --name tdreploy-build --rm -v $(PWD)\:$(WORKDIR) $(IMAGE_NAME) /bin/sh \
+	-c 'cd $(WORKDIR) && mkdir -p cmd && \
+	 go build -ldflags \
+	 "-X trdeploy/flags.Image=$(IMAGE_NAME) \
+	 -X trdeploy/flags.Commit=$(COMMIT) \
+	 -X trdeploy/flags.Time=$(DATE)" \
+	 -o ./cmd'
+
+# 	@echo '*** BUILD ***' && \
+# 	@docker build . --tag trdeploy-build --build-arg IMAGE_NAME=$IMAGE_NAME --build-arg WORKDIR=$WORKDIR \
+# 	@echo '*** RUN ***' && \
+# 	@docker run -v $(PWD)\:$(WORKDIR) trdeploy-build
 
 install: build
 	@bash -c "echo '*** delete ~/bin/trdeploy' ; rm -fr ~/bin/trdeploy "

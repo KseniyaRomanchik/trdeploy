@@ -1,0 +1,19 @@
+ARG IMAGE_NAME
+
+FROM ${IMAGE_NAME} AS builder
+
+ARG IMAGE_NAME=${IMAGE_NAME}
+ARG WORKDIR=${WORKDIR}
+
+ENV CGO_ENABLED=0
+ENV IMAGE_NAME=${IMAGE_NAME}
+
+RUN apk add --no-cache git
+
+WORKDIR ${WORKDIR}
+COPY . .
+RUN mkdir -p cmd
+
+ENTRYPOINT go build -ldflags "-X trdeploy/flags.Image=${IMAGE_NAME} -X trdeploy/flags.Commit=$(git rev-parse HEAD) -X trdeploy/flags.Time=$(date +%d-%m-%Y_%T)" -o ./cmd/trdeploy
+
+#ENTRYPOINT ["./cmd/trdeploy"]

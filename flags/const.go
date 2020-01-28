@@ -16,4 +16,16 @@ const (
 	DeployProfile        = "deploy-profile"
 	Prefix               = "prefix"
 	WorkProfile          = "work-profile"
+
+	versionTemplate = `Version: %s
+Commit: %s
+Image: %s
+Timestamp: %s
+`
+)
+
+var (
+	Image string
+	Commit string
+	Time string
 )
