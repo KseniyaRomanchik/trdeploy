@@ -6,7 +6,7 @@ import (
 	"trdeploy/flags"
 )
 
-func apply(c *cli.Context) error {
+func apply(c *cli.Context, opts ...CommandOption) error {
 	planFile := c.String(flags.PlanFile)
 	prefix := c.String(flags.Prefix)
 	ap := c.String(flags.AuditProfile)
@@ -15,7 +15,7 @@ func apply(c *cli.Context) error {
 	mtfv := c.String(flags.ModuleTfvars)
 
 	if c.IsSet(flags.PlanFile) {
-		return execute([]string{"apply", planFile}, c)
+		return execute([]string{"apply", planFile}, c, opts...)
 	}
 
 	return execute([]string{
@@ -25,5 +25,5 @@ func apply(c *cli.Context) error {
 		"-var-file", mtfv,
 		"-var", fmt.Sprintf("prefix=%s", prefix),
 		"-var", fmt.Sprintf("aws_audit=%s", ap),
-	}, c)
+	}, c, opts...)
 }

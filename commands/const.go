@@ -19,18 +19,28 @@ const (
 			profile = "%s"
 		}
 }`
-	Init    = "init"
-	Plan    = "plan"
-	Apply   = "apply"
-	Destroy = "destroy"
+	Init       = "init"
+	Plan       = "plan"
+	Apply      = "apply"
+	Destroy    = "destroy"
+	PipeDeploy = "pipe-deploy"
 
 	configFileName = "config"
 )
 
-func CurrentDir() string {
+func currentPath() string {
 	currentPath, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
 	}
-	return filepath.Base(currentPath)
+
+	return currentPath
+}
+
+func CurrentDir() string {
+	return filepath.Base(currentPath())
+}
+
+func TerragruntConfigPath() string {
+	return currentPath() + "/" + terragruntConfigName
 }

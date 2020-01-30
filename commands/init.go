@@ -8,7 +8,7 @@ import (
 	"trdeploy/flags"
 )
 
-func initAction(c *cli.Context) error {
+func initAction(c *cli.Context, opts ...CommandOption) error {
 	err := os.RemoveAll(".terraform")
 	if !os.IsNotExist(err) && err != nil {
 		cli.Exit("delete .terraform error", 1)
@@ -49,6 +49,5 @@ func initAction(c *cli.Context) error {
 
 	return execute([]string{
 		"init",
-		"--terragrunt-config", terragruntConfigName,
-	}, c)
+	}, c, opts...)
 }
