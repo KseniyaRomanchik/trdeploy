@@ -6,7 +6,7 @@ import (
 	"trdeploy/flags"
 )
 
-func plan(c *cli.Context) error {
+func plan(c *cli.Context, opts ...CommandOption) error {
 	prefix := c.String(flags.Prefix)
 	ap := c.String(flags.AuditProfile)
 	wp := c.String(flags.WorkProfile)
@@ -20,5 +20,5 @@ func plan(c *cli.Context) error {
 		"-var-file", mtfv,
 		"-var", fmt.Sprintf("prefix=%s", prefix),
 		"-var", fmt.Sprintf("aws_audit=%s", ap),
-	}, c)
+	}, c, opts...)
 }

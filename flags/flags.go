@@ -89,6 +89,10 @@ func LoadFlags() error {
 			Name:  WorkProfile,
 			Usage: "work-profile",
 		}),
+		altsrc.NewBoolFlag(&cli.BoolFlag{
+			Name:  Multithread,
+			Usage: "multithread",
+		}),
 	}
 
 	return nil

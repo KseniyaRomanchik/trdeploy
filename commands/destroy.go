@@ -6,7 +6,7 @@ import (
 	"trdeploy/flags"
 )
 
-func destroy(c *cli.Context) error {
+func destroy(c *cli.Context, opts ...CommandOption) error {
 	prefix := c.String(flags.Prefix)
 	ap := c.String(flags.AuditProfile)
 	wp := c.String(flags.WorkProfile)
@@ -21,5 +21,5 @@ func destroy(c *cli.Context) error {
 		"-var", fmt.Sprintf("prefix=%s", prefix),
 		"-var", fmt.Sprintf("aws_audit=%s", ap),
 		"-parallelism", "1",
-	}, c)
+	}, c, opts...)
 }

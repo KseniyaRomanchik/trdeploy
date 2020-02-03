@@ -16,6 +16,7 @@ const (
 	DeployProfile        = "deploy-profile"
 	Prefix               = "prefix"
 	WorkProfile          = "work-profile"
+	Multithread          = "multithread"
 
 	versionTemplate = `Version: %s
 Commit: %s
@@ -25,7 +26,7 @@ Timestamp: %s
 )
 
 var (
-	Image string
+	Image  string
 	Commit string
-	Time string
+	Time   string
 )
