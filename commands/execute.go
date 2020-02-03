@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"bufio"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
@@ -19,6 +20,24 @@ func Dir(dir string) CommandOption {
 	}
 }
 
+func Env(env []string) CommandOption {
+	return func(c *exec.Cmd) *exec.Cmd {
+		if c.Env == nil {
+			c.Env = append(env, os.Environ()...)
+		}
+
+		c.Env = append(env, c.Env...)
+		return c
+	}
+}
+
+func AutoApprove() CommandOption {
+	return func(c *exec.Cmd) *exec.Cmd {
+		c.Args = append(c.Args, "-auto-approve")
+		return c
+	}
+}
+
 func execute(args []string, c *cli.Context, opts ...CommandOption) error {
 	if c.IsSet(flags.AdditionalArgs) {
 		args = append(args, c.String(flags.AdditionalArgs))
@@ -32,11 +51,16 @@ func execute(args []string, c *cli.Context, opts ...CommandOption) error {
 		cmd = opt(cmd)
 	}
 
-	log.Infof("[command]: %s in %s\n\n", cmd.String(), cmd.Dir)
+	log.Debugf("[command]: %s in %s\n\n", cmd.String(), cmd.Dir)
 
-	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
-	cmd.Stderr = os.Stderr
+
+	if cmd.Env == nil || len(cmd.Env) == 0 {
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+	} else {
+		printThreadOutput(cmd)
+	}
 
 	if err := cmd.Run(); err != nil {
 		cli.Exit(fmt.Sprintf("terragrunt %s error: %s", args[0], err), 1)
@@ -56,4 +80,36 @@ func execute(args []string, c *cli.Context, opts ...CommandOption) error {
 	}
 
 	return nil
+}
+
+func printThreadOutput(cmd *exec.Cmd) {
+	threadName := cmd.Env[0]
+
+	outReader, err := cmd.StdoutPipe()
+	if err != nil {
+		log.Errorln(os.Stderr, "Error creating StdoutPipe for Cmd", err)
+		cli.Exit(err, 1)
+	}
+
+	outScanner := bufio.NewScanner(outReader)
+	go func() {
+		defer outReader.Close()
+		for outScanner.Scan() {
+			log.Infof("%s | %s\n", threadName, outScanner.Text())
+		}
+	}()
+
+	errReader, err := cmd.StderrPipe()
+	if err != nil {
+		log.Errorln(os.Stderr, "Error creating StderrPipe for Cmd", err)
+		cli.Exit(err, 1)
+	}
+
+	errScanner := bufio.NewScanner(errReader)
+	go func() {
+		defer errReader.Close()
+		for errScanner.Scan() {
+			log.Infof("%s | %s\n", threadName, errScanner.Text())
+		}
+	}()
 }

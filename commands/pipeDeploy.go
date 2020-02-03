@@ -19,6 +19,7 @@ type pipelineSteps struct {
 
 func pipeDeploy(c *cli.Context, opts ...CommandOption) error {
 	gpp := c.String(flags.GlobalPiplineProfile)
+	multithread := c.IsSet(flags.Multithread) && c.Bool(flags.Multithread)
 
 	steps, err := parsePipeYaml(gpp)
 	if err != nil {
@@ -33,11 +34,17 @@ func pipeDeploy(c *cli.Context, opts ...CommandOption) error {
 		for j, thread := range step {
 			log.Debugf("\n*** Step %d, Thread %d\n", i, j)
 
+			if !multithread {
+				deploy(thread, c, multithread)
+				wg.Done()
+				continue
+			}
+
 			go func(thread pipelineSteps) {
 				log.Debugf("*** Goroutine %s\n", thread.ThreadName)
 				defer wg.Done()
 
-				deploy(thread, c)
+				deploy(thread, c, multithread)
 			}(thread)
 		}
 
@@ -49,7 +56,7 @@ func pipeDeploy(c *cli.Context, opts ...CommandOption) error {
 
 func parsePipeYaml(gpp string) ([][]pipelineSteps, error) {
 	if _, err := os.Stat(gpp); err != nil {
-		return nil, fmt.Errorf("File is not exist: '%s'. %s", gpp, err)
+		return nil, fmt.Errorf("File does not exist: '%s'. %s", gpp, err)
 	}
 	stepsBytes, err := ioutil.ReadFile(gpp)
 	if err != nil {
@@ -62,14 +69,20 @@ func parsePipeYaml(gpp string) ([][]pipelineSteps, error) {
 	return steps, err
 }
 
-func deploy(thread pipelineSteps, c *cli.Context) {
-	if err := initAction(c, Dir(thread.Path)); err != nil {
-		fmt.Printf("*** Goroutine %s, Init pipe-deploy error %s: %s", thread.ThreadName, thread.Path, err)
+func deploy(thread pipelineSteps, c *cli.Context, multithread bool) {
+	opts := []CommandOption{Dir(thread.Path), Env([]string{thread.ThreadName})}
+
+	if err := initAction(c, opts...); err != nil {
+		log.Errorf("%s, Init pipe-deploy error %s: %s", thread.ThreadName, thread.Path, err)
 		return
 	}
 
-	if err := apply(c, Dir(thread.Path)); err != nil {
-		fmt.Printf("*** Goroutine %s, Apply pipe-deploy error %s: %s", thread.ThreadName, thread.Path, err)
+	if multithread {
+		opts = append(opts, AutoApprove())
+	}
+
+	if err := apply(c, opts...); err != nil {
+		log.Errorf("%s, Apply pipe-deploy error %s: %s", thread.ThreadName, thread.Path, err)
 		return
 	}
 }
