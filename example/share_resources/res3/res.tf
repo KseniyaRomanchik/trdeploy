@@ -23,7 +23,7 @@ EOF
     declare -i timeout=0
     while [[ $timeout -lt $timeout_max ]]; do
       sleep 1; timeout+=1 ; echo "*** wait  1 sek ($timeout) of $timeout_max"
-    done'
+    done
     EOF
   }
 
