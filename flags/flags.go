@@ -66,6 +66,10 @@ func LoadFlags() error {
 			Usage: "path  global var.tf (default from /etc/tdeploy.yaml)",
 		}),
 		altsrc.NewStringFlag(&cli.StringFlag{
+			Name:  PiplineFile,
+			Usage: "Global pipeline profile file name",
+		}),
+		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:  BasePath,
 			Usage: "path  base var.tf (default from /etc/tdeploy.yaml)",
 		}),

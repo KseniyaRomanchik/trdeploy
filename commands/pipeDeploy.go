@@ -18,10 +18,10 @@ type pipelineSteps struct {
 }
 
 func pipeDeploy(c *cli.Context, opts ...CommandOption) error {
-	gpp := c.String(flags.GlobalPiplineProfile)
+	pipelineFile := fmt.Sprintf("%s/%s", c.String(flags.GlobalPiplineProfile), c.String(flags.PiplineFile))
 	multithread := c.IsSet(flags.Multithread) && c.Bool(flags.Multithread)
 
-	steps, err := parsePipeYaml(gpp)
+	steps, err := parsePipeYaml(pipelineFile)
 	if err != nil {
 		return err
 	}
@@ -54,13 +54,13 @@ func pipeDeploy(c *cli.Context, opts ...CommandOption) error {
 	return nil
 }
 
-func parsePipeYaml(gpp string) ([][]pipelineSteps, error) {
-	if _, err := os.Stat(gpp); err != nil {
-		return nil, fmt.Errorf("File does not exist: '%s'. %s", gpp, err)
+func parsePipeYaml(pipelineFile string) ([][]pipelineSteps, error) {
+	if _, err := os.Stat(pipelineFile); err != nil {
+		return nil, fmt.Errorf("File does not exist: '%s'. %s", pipelineFile, err)
 	}
-	stepsBytes, err := ioutil.ReadFile(gpp)
+	stepsBytes, err := ioutil.ReadFile(pipelineFile)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot read from file: '%s'. %s", gpp, err)
+		return nil, fmt.Errorf("Cannot read from file: '%s'. %s", pipelineFile, err)
 	}
 
 	var steps [][]pipelineSteps

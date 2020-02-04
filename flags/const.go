@@ -17,6 +17,7 @@ const (
 	Prefix               = "prefix"
 	WorkProfile          = "work-profile"
 	Multithread          = "multithread"
+	PiplineFile          = "pipeline-file"
 
 	versionTemplate = `Version: %s
 Commit: %s
