@@ -40,7 +40,3 @@ func currentPath() string {
 func CurrentDir() string {
 	return filepath.Base(currentPath())
 }
-
-func TerragruntConfigPath() string {
-	return currentPath() + "/" + terragruntConfigName
-}

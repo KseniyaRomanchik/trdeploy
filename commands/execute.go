@@ -43,8 +43,6 @@ func execute(args []string, c *cli.Context, opts ...CommandOption) error {
 		args = append(args, c.String(flags.AdditionalArgs))
 	}
 
-	args = append(args, "--terragrunt-config", TerragruntConfigPath())
-
 	cmd := exec.Command("terragrunt", args...)
 
 	for _, opt := range opts {

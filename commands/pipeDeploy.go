@@ -72,7 +72,7 @@ func parsePipeYaml(pipelineFile string) ([][]pipelineSteps, error) {
 func deploy(thread pipelineSteps, c *cli.Context, multithread bool) {
 	opts := []CommandOption{Dir(thread.Path), Env([]string{thread.ThreadName})}
 
-	if err := initAction(c, opts...); err != nil {
+	if err := initAction(thread.Path)(c, opts...); err != nil {
 		log.Errorf("%s, Init pipe-deploy error %s: %s", thread.ThreadName, thread.Path, err)
 		return
 	}
