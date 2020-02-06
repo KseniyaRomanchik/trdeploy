@@ -66,10 +66,6 @@ func LoadFlags() error {
 			Usage: "path  global var.tf (default from /etc/tdeploy.yaml)",
 		}),
 		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  PiplineFile,
-			Usage: "Global pipeline profile file name",
-		}),
-		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:  BasePath,
 			Usage: "path  base var.tf (default from /etc/tdeploy.yaml)",
 		}),
@@ -78,26 +74,42 @@ func LoadFlags() error {
 			Value: configPath,
 		}),
 		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  PlanFile,
-			Usage: "plan-file",
-		}),
-		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:  DeployProfile,
 			Usage: "deploy-profile",
-		}),
-		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  Prefix,
-			Usage: "prefix",
-		}),
-		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  WorkProfile,
-			Usage: "work-profile",
-		}),
-		altsrc.NewBoolFlag(&cli.BoolFlag{
-			Name:  Multithread,
-			Usage: "multithread",
 		}),
 	}
 
 	return nil
+}
+
+var RequiredFlags = []cli.Flag{
+	&cli.StringFlag{
+		Name:     Prefix,
+		Usage:    "prefix",
+		Required: true,
+	},
+	&cli.StringFlag{
+		Name:     WorkProfile,
+		Usage:    "work-profile",
+		Required: true,
+	},
+}
+
+var PipeDeployFlags = []cli.Flag{
+	altsrc.NewBoolFlag(&cli.BoolFlag{
+		Name:  Multithread,
+		Usage: "multithread",
+	}),
+	altsrc.NewStringFlag(&cli.StringFlag{
+		Name:     PiplineFile,
+		Usage:    "Global pipeline profile file name",
+		Required: true,
+	}),
+}
+
+var ApplyFlags = []cli.Flag{
+	altsrc.NewStringFlag(&cli.StringFlag{
+		Name:  PlanFile,
+		Usage: "plan-file",
+	}),
 }

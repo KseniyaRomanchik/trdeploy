@@ -12,6 +12,8 @@ var (
 )
 
 func LoadCommands() {
+	fls := append(flags.Flags, flags.RequiredFlags...)
+
 	Commands = []*cli.Command{
 		{
 			Name:      Init,
@@ -19,7 +21,7 @@ func LoadCommands() {
 			UsageText: "*** init ",
 			Usage:     "init",
 			Before:    beforeAction,
-			Flags:     flags.Flags,
+			Flags:     fls,
 			Action:    commandAction(initAction()),
 		},
 		{
@@ -28,7 +30,7 @@ func LoadCommands() {
 			UsageText: "*** plan ",
 			Usage:     "plan",
 			Before:    beforeAction,
-			Flags:     flags.Flags,
+			Flags:     fls,
 			Action:    commandAction(initAction(), plan),
 		},
 		{
@@ -37,7 +39,7 @@ func LoadCommands() {
 			UsageText: "*** apply ",
 			Usage:     "apply",
 			Before:    beforeAction,
-			Flags:     flags.Flags,
+			Flags:     append(fls, flags.ApplyFlags...),
 			Action:    commandAction(initAction(), apply),
 		},
 		{
@@ -46,7 +48,7 @@ func LoadCommands() {
 			UsageText: "*** destroy ",
 			Usage:     "destroy",
 			Before:    beforeAction,
-			Flags:     flags.Flags,
+			Flags:     fls,
 			Action:    commandAction(initAction(), destroy),
 		},
 		{
@@ -54,7 +56,7 @@ func LoadCommands() {
 			UsageText: "*** pipe deploy ",
 			Usage:     "pipe deploy",
 			Before:    beforeAction,
-			Flags:     flags.Flags,
+			Flags:     append(fls, flags.PipeDeployFlags...),
 			Action:    commandAction(pipeDeploy),
 		},
 	}
@@ -63,7 +65,7 @@ func LoadCommands() {
 func commandAction(actionFns ...func(*cli.Context, ...CommandOption) error) func(c *cli.Context) error {
 	return func(c *cli.Context) error {
 		fmt.Printf("\n %s %s\n", c.Command.UsageText, CurrentDir())
-		for _, f := range c.App.VisibleFlags() {
+		for _, f := range c.Command.Flags {
 			fmt.Printf("\t *  %s: %+v\n", f.Names()[0], c.String(f.Names()[0]))
 		}
 
