@@ -105,6 +105,11 @@ var PipeDeployFlags = []cli.Flag{
 		Usage:    "Global pipeline profile file name",
 		Required: true,
 	}),
+	&cli.StringFlag{
+		Name:   ExecDir,
+		Usage:  "execute dir",
+		Hidden: true,
+	},
 }
 
 var ApplyFlags = []cli.Flag{

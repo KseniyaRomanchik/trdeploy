@@ -22,7 +22,7 @@ func LoadCommands() {
 			Usage:     "init",
 			Before:    beforeAction,
 			Flags:     fls,
-			Action:    commandAction(initAction()),
+			Action:    commandAction(initAction),
 		},
 		{
 			Name:      Plan,
@@ -31,7 +31,7 @@ func LoadCommands() {
 			Usage:     "plan",
 			Before:    beforeAction,
 			Flags:     fls,
-			Action:    commandAction(initAction(), plan),
+			Action:    commandAction(initAction, plan),
 		},
 		{
 			Name:      Apply,
@@ -40,7 +40,7 @@ func LoadCommands() {
 			Usage:     "apply",
 			Before:    beforeAction,
 			Flags:     append(fls, flags.ApplyFlags...),
-			Action:    commandAction(initAction(), apply),
+			Action:    commandAction(initAction, apply),
 		},
 		{
 			Name:      Destroy,
@@ -49,7 +49,7 @@ func LoadCommands() {
 			Usage:     "destroy",
 			Before:    beforeAction,
 			Flags:     fls,
-			Action:    commandAction(initAction(), destroy),
+			Action:    commandAction(initAction, destroy),
 		},
 		{
 			Name:      PipeDeploy,

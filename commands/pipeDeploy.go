@@ -12,7 +12,11 @@ import (
 )
 
 type pipelineSteps struct {
-	ThreadName string `yaml:"thread_name"`
+	Steps map[string]map[string]thread `yaml:"steps"`
+}
+
+type thread struct {
+	Name       string `yaml:"-"`
 	Path       string `yaml:"path"`
 	VarProfile string `yaml:"var_profile"`
 }
@@ -28,24 +32,24 @@ func pipeDeploy(c *cli.Context, opts ...CommandOption) error {
 
 	var wg sync.WaitGroup
 
-	for i, step := range steps {
+	for sName, step := range steps.Steps {
 		wg.Add(len(step))
 
-		for j, thread := range step {
-			log.Debugf("\n*** Step %d, Thread %d\n", i, j)
+		for thName, th := range step {
+			log.Debugf("\n*** Step %s, Thread %s\n", sName, thName)
+			th.Name = sName + " " + thName
 
 			if !multithread {
-				deploy(thread, c, multithread)
+				deploy(th, c, multithread)
 				wg.Done()
 				continue
 			}
 
-			go func(thread pipelineSteps) {
-				log.Debugf("*** Goroutine %s\n", thread.ThreadName)
+			go func(th thread) {
 				defer wg.Done()
 
-				deploy(thread, c, multithread)
-			}(thread)
+				deploy(th, c, multithread)
+			}(th)
 		}
 
 		wg.Wait()
@@ -54,7 +58,7 @@ func pipeDeploy(c *cli.Context, opts ...CommandOption) error {
 	return nil
 }
 
-func parsePipeYaml(pipelineFile string) ([][]pipelineSteps, error) {
+func parsePipeYaml(pipelineFile string) (*pipelineSteps, error) {
 	if _, err := os.Stat(pipelineFile); err != nil {
 		return nil, fmt.Errorf("File does not exist: '%s'. %s", pipelineFile, err)
 	}
@@ -63,17 +67,18 @@ func parsePipeYaml(pipelineFile string) ([][]pipelineSteps, error) {
 		return nil, fmt.Errorf("Cannot read from file: '%s'. %s", pipelineFile, err)
 	}
 
-	var steps [][]pipelineSteps
+	var steps pipelineSteps
 
 	err = yaml.Unmarshal(stepsBytes, &steps)
-	return steps, err
+	return &steps, err
 }
 
-func deploy(thread pipelineSteps, c *cli.Context, multithread bool) {
-	opts := []CommandOption{Dir(thread.Path), Env([]string{thread.ThreadName})}
+func deploy(th thread, c *cli.Context, multithread bool) {
+	opts := []CommandOption{Dir(th.Path), Env([]string{th.Name})}
+	c.Set(flags.ExecDir, th.Path)
 
-	if err := initAction(thread.Path)(c, opts...); err != nil {
-		log.Errorf("%s, Init pipe-deploy error %s: %s", thread.ThreadName, thread.Path, err)
+	if err := initAction(c, opts...); err != nil {
+		log.Errorf("%s, Init pipe-deploy error %s: %s", th.Name, th.Path, err)
 		return
 	}
 
@@ -82,7 +87,7 @@ func deploy(thread pipelineSteps, c *cli.Context, multithread bool) {
 	}
 
 	if err := apply(c, opts...); err != nil {
-		log.Errorf("%s, Apply pipe-deploy error %s: %s", thread.ThreadName, thread.Path, err)
+		log.Errorf("%s, Apply pipe-deploy error %s: %s", th.Name, th.Path, err)
 		return
 	}
 }
