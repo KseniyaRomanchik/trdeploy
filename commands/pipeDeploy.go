@@ -12,11 +12,16 @@ import (
 )
 
 type pipelineSteps struct {
-	Steps map[string]map[string]thread `yaml:"steps"`
+	Steps []step `yaml:"steps"`
+}
+
+type step struct {
+	Name    string
+	Threads []thread
 }
 
 type thread struct {
-	Name       string `yaml:"-"`
+	Name       string `yaml:"name"`
 	Path       string `yaml:"path"`
 	VarProfile string `yaml:"var_profile"`
 }
@@ -32,12 +37,12 @@ func pipeDeploy(c *cli.Context, opts ...CommandOption) error {
 
 	var wg sync.WaitGroup
 
-	for sName, step := range steps.Steps {
-		wg.Add(len(step))
+	for i, s := range steps.Steps {
+		wg.Add(len(s.Threads))
 
-		for thName, th := range step {
-			log.Debugf("\n*** Step %s, Thread %s\n", sName, thName)
-			th.Name = sName + " " + thName
+		for j, th := range s.Threads {
+			log.Debugf("\n*** Step %d %s, Thread %d %s\n", i+1, s.Name, j+1, th.Name)
+			th.Name = s.Name + " " + th.Name
 
 			if !multithread {
 				deploy(th, c, multithread)
