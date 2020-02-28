@@ -79,11 +79,14 @@ func parsePipeYaml(pipelineFile string) (*pipelineSteps, error) {
 }
 
 func deploy(th thread, c *cli.Context, multithread bool) {
-	opts := []CommandOption{Dir(th.Path), Env([]string{th.Name})}
-	c.Set(flags.ExecDir, th.Path)
+	bp := c.String(flags.BasePath)
+	execPath := bp + "/" + th.Path
+	opts := []CommandOption{Dir(execPath), Env([]string{th.Name})}
+
+	c.Set(flags.ExecPath, execPath)
 
 	if err := initAction(c, opts...); err != nil {
-		log.Errorf("%s, Init pipe-deploy error %s: %s", th.Name, th.Path, err)
+		log.Errorf("%s, Init pipe-deploy error %s: %s", th.Name, execPath, err)
 		return
 	}
 
@@ -92,7 +95,7 @@ func deploy(th thread, c *cli.Context, multithread bool) {
 	}
 
 	if err := apply(c, opts...); err != nil {
-		log.Errorf("%s, Apply pipe-deploy error %s: %s", th.Name, th.Path, err)
+		log.Errorf("%s, Apply pipe-deploy error %s: %s", th.Name, execPath, err)
 		return
 	}
 }

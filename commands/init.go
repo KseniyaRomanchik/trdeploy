@@ -12,10 +12,10 @@ import (
 func initAction(c *cli.Context, opts ...CommandOption) error {
 	prefix := c.String(flags.Prefix)
 	wp := c.String(flags.WorkProfile)
-	initDir, initPath := getPaths(c.String(flags.ExecDir))
+	initDir, initPath := getPaths(c.String(flags.ExecPath))
 
 	terragruntConfigPath := initPath + "/" + terragruntConfigName
-	terraformDirPath := initPath + "/" + ".terraform"
+	terraformDirPath := initPath + "/.terraform"
 	terraformStatePath := fmt.Sprintf("%s/%s/%s_%s_%s.tfstate", wp, prefix, wp, prefix, initDir)
 
 	tCfg := fmt.Sprintf(
@@ -49,7 +49,7 @@ func initAction(c *cli.Context, opts ...CommandOption) error {
 func getPaths(path string) (string, string) {
 	if path != "" {
 		initPath := strings.Split(path, "/")
-		return initPath[len(initPath)-1], currentPath() + "/" + path
+		return initPath[len(initPath)-1], path
 	}
 
 	return CurrentDir(), currentPath()

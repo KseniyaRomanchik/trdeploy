@@ -106,7 +106,7 @@ var PipeDeployFlags = []cli.Flag{
 		Required: true,
 	}),
 	&cli.StringFlag{
-		Name:   ExecDir,
+		Name:   ExecPath,
 		Usage:  "execute dir",
 		Hidden: true,
 	},

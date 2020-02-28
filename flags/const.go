@@ -19,7 +19,7 @@ const (
 	Multithread          = "multithread"
 	PiplineFile          = "pipeline-file"
 
-	ExecDir = "exec-dir"
+	ExecPath = "exec-path"
 
 	versionTemplate = `Version: %s
 Commit: %s

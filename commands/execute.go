@@ -15,7 +15,7 @@ type CommandOption func(*exec.Cmd) *exec.Cmd
 
 func Dir(dir string) CommandOption {
 	return func(c *exec.Cmd) *exec.Cmd {
-		c.Dir = currentPath() + "/" + dir
+		c.Dir = dir
 		return c
 	}
 }
