@@ -37,27 +37,40 @@ func pipeDeploy(c *cli.Context, opts ...CommandOption) error {
 
 	var wg sync.WaitGroup
 
+Steps:
 	for i, s := range steps.Steps {
 		wg.Add(len(s.Threads))
 
+		deployError := make(chan error, len(s.Threads))
+	Threads:
 		for j, th := range s.Threads {
 			log.Debugf("\n*** Step %d %s, Thread %d %s\n", i+1, s.Name, j+1, th.Name)
 			th.Name = s.Name + " " + th.Name
 
 			if !multithread {
-				deploy(th, c, multithread)
+				deployError <- deploy(th, c, multithread)
 				wg.Done()
-				continue
+				continue Threads
 			}
 
 			go func(th thread) {
 				defer wg.Done()
 
-				deploy(th, c, multithread)
+				deployError <- deploy(th, c, multithread)
 			}(th)
 		}
 
 		wg.Wait()
+
+		go func() {
+			close(deployError)
+		}()
+
+		for err := range deployError {
+			if err != nil {
+				break Steps
+			}
+		}
 	}
 
 	return nil
@@ -78,7 +91,7 @@ func parsePipeYaml(pipelineFile string) (*pipelineSteps, error) {
 	return &steps, err
 }
 
-func deploy(th thread, c *cli.Context, multithread bool) {
+func deploy(th thread, c *cli.Context, multithread bool) error {
 	bp := c.String(flags.BasePath)
 	execPath := bp + "/" + th.Path
 	opts := []CommandOption{Dir(execPath), Env([]string{th.Name})}
@@ -87,7 +100,7 @@ func deploy(th thread, c *cli.Context, multithread bool) {
 
 	if err := initAction(c, opts...); err != nil {
 		log.Errorf("%s, Init pipe-deploy error %s: %s", th.Name, execPath, err)
-		return
+		return err
 	}
 
 	if multithread {
@@ -96,6 +109,8 @@ func deploy(th thread, c *cli.Context, multithread bool) {
 
 	if err := apply(c, opts...); err != nil {
 		log.Errorf("%s, Apply pipe-deploy error %s: %s", th.Name, execPath, err)
-		return
+		return err
 	}
+
+	return nil
 }
