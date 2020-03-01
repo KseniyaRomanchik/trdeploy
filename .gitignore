@@ -5,3 +5,4 @@ vendor
 cmd
 
 **/.terraform/
+/example/pipline_profile/test.yaml
