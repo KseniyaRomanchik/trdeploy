@@ -23,9 +23,11 @@ const (
 	Plan       = "plan"
 	Apply      = "apply"
 	Destroy    = "destroy"
-	PipeDeploy = "pipe-deploy"
+	Deploy = "deploy"
+	Pipe = "pipe"
 
 	configFileName = "config"
+	stepsCtx = "steps"
 )
 
 func currentPath() string {

@@ -5,6 +5,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"strings"
 	"trdeploy/flags"
 )
@@ -12,7 +13,13 @@ import (
 func initAction(c *cli.Context, opts ...CommandOption) error {
 	prefix := c.String(flags.Prefix)
 	wp := c.String(flags.WorkProfile)
-	initDir, initPath := getPaths(c.String(flags.ExecPath))
+
+	cmd := &exec.Cmd{}
+	for _, opt := range opts {
+		cmd = opt(cmd)
+	}
+
+	initDir, initPath := getPaths(cmd.Dir)
 
 	terragruntConfigPath := initPath + "/" + terragruntConfigName
 	terraformDirPath := initPath + "/.terraform"

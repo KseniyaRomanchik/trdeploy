@@ -20,7 +20,7 @@ func LoadCommands() {
 			Aliases:   []string{"i"},
 			UsageText: "*** init ",
 			Usage:     "init",
-			Before:    beforeAction,
+			Before:    beforeAction(),
 			Flags:     fls,
 			Action:    commandAction(initAction),
 		},
@@ -29,7 +29,7 @@ func LoadCommands() {
 			Aliases:   []string{"p"},
 			UsageText: "*** plan ",
 			Usage:     "plan",
-			Before:    beforeAction,
+			Before:    beforeAction(),
 			Flags:     fls,
 			Action:    commandAction(initAction, plan),
 		},
@@ -38,7 +38,7 @@ func LoadCommands() {
 			Aliases:   []string{"a"},
 			UsageText: "*** apply ",
 			Usage:     "apply",
-			Before:    beforeAction,
+			Before:    beforeAction(),
 			Flags:     append(fls, flags.ApplyFlags...),
 			Action:    commandAction(initAction, apply),
 		},
@@ -47,17 +47,33 @@ func LoadCommands() {
 			Aliases:   []string{"d"},
 			UsageText: "*** destroy ",
 			Usage:     "destroy",
-			Before:    beforeAction,
+			Before:    beforeAction(),
 			Flags:     fls,
 			Action:    commandAction(initAction, destroy),
 		},
 		{
-			Name:      PipeDeploy,
-			UsageText: "*** pipe deploy ",
-			Usage:     "pipe deploy",
-			Before:    beforeAction,
-			Flags:     append(fls, flags.PipeDeployFlags...),
-			Action:    commandAction(pipeDeploy),
+			Name:      Pipe,
+			UsageText: "*** pipe",
+			Usage:     "pipe",
+			Flags:     flags.Flags,
+			Subcommands: []*cli.Command{
+				{
+					Name:      Deploy,
+					UsageText: "*** deploy ",
+					Usage:     "deploy",
+					Before:    beforeAction(loadSteps(false)),
+					Flags:     append(fls, flags.PipeFlags...),
+					Action:    commandAction(pipeDeploy),
+				},
+				{
+					Name:      Destroy,
+					UsageText: "*** destroy ",
+					Usage:     "destroy",
+					Before:    beforeAction(loadSteps(true)),
+					Flags:     append(fls, flags.PipeFlags...),
+					Action:    commandAction(pipeDestroy),
+				},
+			},
 		},
 	}
 }
@@ -79,9 +95,25 @@ func commandAction(actionFns ...func(*cli.Context, ...CommandOption) error) func
 	}
 }
 
-func beforeAction(c *cli.Context) error {
-	replaceModuleTfvars(c)
+func beforeAction(beforeFns ...func(*cli.Context) error) func(c *cli.Context) error {
+	return func(c *cli.Context) error {
+		replaceModuleTfvars(c)
 
+		if err := loadFromConfig(c); err != nil {
+			return err
+		}
+
+		for _, fn := range beforeFns {
+			if err := fn(c); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
+}
+
+func loadFromConfig(c *cli.Context) error {
 	mic, _ := altsrc.NewYamlSourceFromFlagFunc(configFileName)(c)
 
 	return altsrc.InitInputSourceWithContext(

@@ -95,7 +95,7 @@ var RequiredFlags = []cli.Flag{
 	},
 }
 
-var PipeDeployFlags = []cli.Flag{
+var PipeFlags = []cli.Flag{
 	altsrc.NewBoolFlag(&cli.BoolFlag{
 		Name:  Multithread,
 		Usage: "multithread",
@@ -105,11 +105,6 @@ var PipeDeployFlags = []cli.Flag{
 		Usage:    "Global pipeline profile file name",
 		Required: true,
 	}),
-	&cli.StringFlag{
-		Name:   ExecPath,
-		Usage:  "execute dir",
-		Hidden: true,
-	},
 }
 
 var ApplyFlags = []cli.Flag{
