@@ -77,6 +77,10 @@ func LoadFlags() error {
 			Name:  DeployProfile,
 			Usage: "deploy-profile",
 		}),
+		altsrc.NewIntFlag(&cli.IntFlag{
+			Name:  Parallelism,
+			Usage: "parallelism",
+		}),
 	}
 
 	return nil

@@ -18,6 +18,7 @@ const (
 	WorkProfile          = "work-profile"
 	Multithread          = "multithread"
 	PiplineFile          = "pipeline-file"
+	Parallelism          = "parallelism"
 
 	versionTemplate = `Version: %s
 Commit: %s

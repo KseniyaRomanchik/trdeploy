@@ -28,6 +28,8 @@ const (
 
 	configFileName = "config"
 	stepsCtx = "steps"
+
+	defaultDestroyOperations = 1
 )
 
 func currentPath() string {
