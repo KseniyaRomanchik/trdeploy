@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strconv"
 	"trdeploy/flags"
 )
 
@@ -34,6 +35,31 @@ func Env(env []string) CommandOption {
 func AutoApprove() CommandOption {
 	return func(c *exec.Cmd) *exec.Cmd {
 		c.Args = append(c.Args, "-auto-approve")
+		return c
+	}
+}
+
+func Parallelism(v int) CommandOption {
+	return func(c *exec.Cmd) *exec.Cmd {
+		c.Args = append(c.Args, "-parallelism", strconv.Itoa(v))
+		return c
+	}
+}
+
+func Cmd(ctx *cli.Context) CommandOption {
+	prefix := ctx.String(flags.Prefix)
+	ap := ctx.String(flags.AuditProfile)
+	wp := ctx.String(flags.WorkProfile)
+	gvp := ctx.String(flags.GlobalVarPath)
+	mtfv := ctx.String(flags.ModuleTfvars)
+
+	return func(c *exec.Cmd) *exec.Cmd {
+		c.Args = append(c.Args,
+			"-var-file", fmt.Sprintf("%s/common.tfvars", gvp),
+			"-var-file", fmt.Sprintf("%s/%s.tfvars", gvp, wp),
+			"-var-file", mtfv,
+			"-var", fmt.Sprintf("prefix=%s", prefix),
+			"-var", fmt.Sprintf("aws_audit=%s", ap),)
 		return c
 	}
 }
