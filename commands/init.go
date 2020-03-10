@@ -14,7 +14,7 @@ func initAction(c *cli.Context, opts ...CommandOption) error {
 	prefix := c.String(flags.Prefix)
 	wp := c.String(flags.WorkProfile)
 
-	cmd := &exec.Cmd{}
+	cmd := Command{Cmd: &exec.Cmd{}}
 	for _, opt := range opts {
 		cmd = opt(cmd)
 	}

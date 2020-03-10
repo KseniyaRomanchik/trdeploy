@@ -8,68 +8,18 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"strconv"
+	"os/signal"
+	"strings"
+	"syscall"
 	"trdeploy/flags"
 )
-
-type CommandOption func(*exec.Cmd) *exec.Cmd
-
-func Dir(dir string) CommandOption {
-	return func(c *exec.Cmd) *exec.Cmd {
-		c.Dir = dir
-		return c
-	}
-}
-
-func Env(env []string) CommandOption {
-	return func(c *exec.Cmd) *exec.Cmd {
-		if c.Env == nil {
-			c.Env = append(env, os.Environ()...)
-		}
-
-		c.Env = append(env, c.Env...)
-		return c
-	}
-}
-
-func AutoApprove() CommandOption {
-	return func(c *exec.Cmd) *exec.Cmd {
-		c.Args = append(c.Args, "-auto-approve")
-		return c
-	}
-}
-
-func Parallelism(v int) CommandOption {
-	return func(c *exec.Cmd) *exec.Cmd {
-		c.Args = append(c.Args, "-parallelism", strconv.Itoa(v))
-		return c
-	}
-}
-
-func Cmd(ctx *cli.Context) CommandOption {
-	prefix := ctx.String(flags.Prefix)
-	ap := ctx.String(flags.AuditProfile)
-	wp := ctx.String(flags.WorkProfile)
-	gvp := ctx.String(flags.GlobalVarPath)
-	mtfv := ctx.String(flags.ModuleTfvars)
-
-	return func(c *exec.Cmd) *exec.Cmd {
-		c.Args = append(c.Args,
-			"-var-file", fmt.Sprintf("%s/common.tfvars", gvp),
-			"-var-file", fmt.Sprintf("%s/%s.tfvars", gvp, wp),
-			"-var-file", mtfv,
-			"-var", fmt.Sprintf("prefix=%s", prefix),
-			"-var", fmt.Sprintf("aws_audit=%s", ap),)
-		return c
-	}
-}
 
 func execute(args []string, c *cli.Context, opts ...CommandOption) error {
 	if c.IsSet(flags.AdditionalArgs) {
 		args = append(args, c.String(flags.AdditionalArgs))
 	}
 
-	cmd := exec.Command("terragrunt", args...)
+	cmd := Command{Cmd: exec.Command("terragrunt", args...)}
 
 	for _, opt := range opts {
 		cmd = opt(cmd)
@@ -79,40 +29,35 @@ func execute(args []string, c *cli.Context, opts ...CommandOption) error {
 
 	cmd.Stdin = os.Stdin
 
-	if cmd.Env == nil || len(cmd.Env) == 0 {
+	if cmd.ThreadName == nil || len(cmd.ThreadName) == 0 {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 	} else {
 		printThreadOutput(cmd)
 	}
 
+	stopSignaling := signalingProcess(cmd)
+
 	if err := cmd.Run(); err != nil {
-		cli.Exit(fmt.Sprintf("terragrunt %s error: %s", args[0], err), 1)
 		return fmt.Errorf("terragrunt %s error: %s", args[0], err)
 	}
 
-	if c.IsSet(flags.OutPlanLog) {
-		logFile, err := os.Create(c.String(flags.OutPlanLog))
-		if err != nil {
-			cli.Exit(fmt.Sprintf("creating out plan log file error: %s", err), 1)
-			return fmt.Errorf("creating out plan log file error: %s", err)
-		}
-		defer logFile.Close()
+	stopSignaling()
 
-		wrt := io.MultiWriter(os.Stdout, logFile)
-		log.SetOutput(wrt)
+	if c.IsSet(flags.OutPlanLog) {
+		return savePlanLog(c.String(flags.OutPlanLog))
 	}
 
 	return nil
 }
 
-func printThreadOutput(cmd *exec.Cmd) {
-	threadName := cmd.Env[0]
+func printThreadOutput(cmd Command) {
+	threadName := strings.Join(cmd.ThreadName, " ")
 
 	outReader, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Errorln(os.Stderr, "Error creating StdoutPipe for Cmd", err)
-		cli.Exit(err, 1)
+		return
 	}
 
 	outScanner := bufio.NewScanner(outReader)
@@ -126,7 +71,7 @@ func printThreadOutput(cmd *exec.Cmd) {
 	errReader, err := cmd.StderrPipe()
 	if err != nil {
 		log.Errorln(os.Stderr, "Error creating StderrPipe for Cmd", err)
-		cli.Exit(err, 1)
+		return
 	}
 
 	errScanner := bufio.NewScanner(errReader)
@@ -136,4 +81,41 @@ func printThreadOutput(cmd *exec.Cmd) {
 			log.Infof("%s | %s\n", threadName, errScanner.Text())
 		}
 	}()
+}
+
+func signalingProcess(cmd Command) func() {
+	exit := make(chan os.Signal, 1)
+	signal.Notify(exit, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+
+	go func (cmd Command) {
+		for sig := range exit {
+			signal.Stop(exit)
+
+			var threadMessage string
+			if len(cmd.Env) > 0 {
+				threadMessage = fmt.Sprintf("%s | ", cmd.Env[0])
+			}
+
+			log.Warnf("%sSignal interrupting message: %v", threadMessage, sig)
+
+			if err := cmd.Process.Signal(sig); err != nil {
+				log.Errorf("%sSignal interrupting error: %v", threadMessage, err)
+			}
+		}
+	}(cmd)
+
+	return func() { signal.Stop(exit) }
+}
+
+func savePlanLog(name string) error {
+	logFile, err := os.Create(name)
+	if err != nil {
+		return fmt.Errorf("creating out plan log file error: %s", err)
+	}
+	defer logFile.Close()
+
+	wrt := io.MultiWriter(os.Stdout, logFile)
+	log.SetOutput(wrt)
+
+	return nil
 }
