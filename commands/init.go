@@ -27,26 +27,23 @@ func initAction(c *cli.Context, opts ...CommandOption) error {
 
 	tCfg := fmt.Sprintf(
 		terragruntConfigTempl,
-		c.String(flags.S3StateBacket),
+		c.String(flags.S3StateBucket),
 		terraformStatePath,
 		c.String(flags.Region),
-		c.String(flags.DynamodbLockTable),
+		c.String(flags.DynamoDBLockTable),
 		c.String(flags.AuditProfile),
 	)
 
 	if err := os.RemoveAll(terraformDirPath); !os.IsNotExist(err) && err != nil {
-		cli.Exit(fmt.Sprintf("delete .terraform error: %+v", err), 1)
 		return fmt.Errorf("delete .terraform error: %+v", err)
 	}
 
 	if err := os.RemoveAll(terragruntConfigPath); !os.IsNotExist(err) && err != nil {
-		cli.Exit(fmt.Sprintf("delete %s error: %+v", terragruntConfigName, err), 1)
 		return fmt.Errorf("delete %s error: %+v", terragruntConfigName, err)
 	}
 
 	err := ioutil.WriteFile(terragruntConfigPath, []byte(tCfg), 0777)
 	if err != nil {
-		cli.Exit(fmt.Sprintf("creating terragrunt config error: %+v", err), 1)
 		return fmt.Errorf("creating terragrunt config error: %+v", err)
 	}
 

@@ -19,8 +19,8 @@ type pipelineSteps struct {
 }
 
 type step struct {
-	Name    string
-	Threads []thread
+	Name    string `yaml:"name"`
+	Threads []thread `yaml:"threads"`
 }
 
 type thread struct {
@@ -53,11 +53,11 @@ func loadSteps(reverse bool) func (c *cli.Context) error {
 
 func parsePipeYaml(pipelineFile string) (*pipelineSteps, error) {
 	if _, err := os.Stat(pipelineFile); err != nil {
-		return nil, fmt.Errorf("File does not exist: '%s'. %s", pipelineFile, err)
+		return nil, fmt.Errorf("file does not exist: '%s'. %s", pipelineFile, err)
 	}
 	stepsBytes, err := ioutil.ReadFile(pipelineFile)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot read from file: '%s'. %s", pipelineFile, err)
+		return nil, fmt.Errorf("cannot read from file: '%s'. %s", pipelineFile, err)
 	}
 
 	var steps pipelineSteps

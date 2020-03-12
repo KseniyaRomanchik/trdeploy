@@ -31,13 +31,13 @@ func LoadFlags() error {
 			Value: "us-west-2",
 		}),
 		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  DynamodbLockTable,
+			Name:  DynamoDBLockTable,
 			Usage: "terraform state-lock",
 			Value: "unitedsoft-terraform-state-backet-lock",
 		}),
 		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  S3StateBacket,
-			Usage: "terraform s3 state backet",
+			Name:  S3StateBucket,
+			Usage: "terraform s3 state bucket",
 			Value: "unitedsoft-terraform-state-backet",
 		}),
 		altsrc.NewStringFlag(&cli.StringFlag{
@@ -80,6 +80,11 @@ func LoadFlags() error {
 		altsrc.NewIntFlag(&cli.IntFlag{
 			Name:  Parallelism,
 			Usage: "parallelism",
+		}),
+		altsrc.NewIntFlag(&cli.IntFlag{
+			Name:  Timeout,
+			Usage: "timeout in seconds",
+			Value: 10 * 60,
 		}),
 	}
 

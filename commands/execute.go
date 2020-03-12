@@ -11,6 +11,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 	"trdeploy/flags"
 )
 
@@ -36,7 +37,7 @@ func execute(args []string, c *cli.Context, opts ...CommandOption) error {
 		printThreadOutput(cmd)
 	}
 
-	stopSignaling := signalingProcess(cmd)
+	stopSignaling := signalingProcess(cmd, c.Int(flags.Timeout))
 
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("terragrunt %s error: %s", args[0], err)
@@ -62,7 +63,12 @@ func printThreadOutput(cmd Command) {
 
 	outScanner := bufio.NewScanner(outReader)
 	go func() {
-		defer outReader.Close()
+		defer func() {
+			if err := outReader.Close(); err != nil {
+				log.Errorln("out reader closing error: ", err)
+			}
+		}()
+
 		for outScanner.Scan() {
 			log.Infof("%s | %s\n", threadName, outScanner.Text())
 		}
@@ -76,14 +82,18 @@ func printThreadOutput(cmd Command) {
 
 	errScanner := bufio.NewScanner(errReader)
 	go func() {
-		defer errReader.Close()
+		defer func() {
+			if err := errReader.Close(); err != nil {
+				log.Errorln("err reader closing error: ", err)
+			}
+		}()
 		for errScanner.Scan() {
 			log.Infof("%s | %s\n", threadName, errScanner.Text())
 		}
 	}()
 }
 
-func signalingProcess(cmd Command) func() {
+func signalingProcess(cmd Command, timeout int) func() {
 	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 
@@ -101,6 +111,12 @@ func signalingProcess(cmd Command) func() {
 			if err := cmd.Process.Signal(sig); err != nil {
 				log.Errorf("%sSignal interrupting error: %v", threadMessage, err)
 			}
+
+			time.Sleep(time.Duration(timeout) * time.Second)
+
+			if err := cmd.Process.Kill(); err != nil {
+				log.Errorf("%sKilling process error: %v", threadMessage, err)
+			}
 		}
 	}(cmd)
 
@@ -112,7 +128,11 @@ func savePlanLog(name string) error {
 	if err != nil {
 		return fmt.Errorf("creating out plan log file error: %s", err)
 	}
-	defer logFile.Close()
+	defer func() {
+		if err := logFile.Close(); err != nil {
+			log.Errorln("log file closing error: ", err)
+		}
+	}()
 
 	wrt := io.MultiWriter(os.Stdout, logFile)
 	log.SetOutput(wrt)

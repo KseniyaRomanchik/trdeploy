@@ -2,8 +2,8 @@ package flags
 
 const (
 	Region               = "region"
-	DynamodbLockTable    = "dynamodb-lock-table"
-	S3StateBacket        = "s3-state-backet"
+	DynamoDBLockTable    = "dynamodb-lock-table"
+	S3StateBucket        = "s3-state-bucket"
 	AuditProfile         = "audit-profile"
 	OutPlanLog           = "out-plan-log"
 	AdditionalArgs       = "additional-args"
@@ -19,6 +19,7 @@ const (
 	Multithread          = "multithread"
 	PiplineFile          = "pipeline-file"
 	Parallelism          = "parallelism"
+	Timeout              = "timeout"
 
 	versionTemplate = `Version: %s
 Commit: %s

@@ -97,7 +97,9 @@ func commandAction(actionFns ...func(*cli.Context, ...CommandOption) error) func
 
 func beforeAction(beforeFns ...func(*cli.Context) error) func(c *cli.Context) error {
 	return func(c *cli.Context) error {
-		replaceModuleTfvars(c)
+		if err := replaceModuleTfvars(c); err != nil {
+			return err
+		}
 
 		if err := loadFromConfig(c); err != nil {
 			return err
@@ -123,7 +125,7 @@ func loadFromConfig(c *cli.Context) error {
 		})(c)
 }
 
-func replaceModuleTfvars(c *cli.Context) {
+func replaceModuleTfvars(c *cli.Context) error {
 	var newMtv string
 
 	if !c.IsSet(flags.ModuleTfvars) {
@@ -134,5 +136,5 @@ func replaceModuleTfvars(c *cli.Context) {
 		newMtv = fmt.Sprintf("var/%s", mtv)
 	}
 
-	c.Set(flags.ModuleTfvars, newMtv)
+	return c.Set(flags.ModuleTfvars, newMtv)
 }
