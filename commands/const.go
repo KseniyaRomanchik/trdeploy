@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	terragruntConfigName  = "terragrunt.hcl"
+	TerragruntConfigName  = "terragrunt.hcl"
+	TerraformDir = ".terraform"
 	terragruntConfigTempl = `remote_state {
 	backend = "s3"
 		config =  {

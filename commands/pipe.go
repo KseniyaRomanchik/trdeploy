@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"context"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
@@ -27,27 +26,6 @@ type thread struct {
 	Name       string `yaml:"name"`
 	Path       string `yaml:"path"`
 	VarProfile string `yaml:"var_profile"`
-}
-
-func loadSteps(reverse bool) func (c *cli.Context) error {
-	return func(c *cli.Context) error {
-		pipelineFile := fmt.Sprintf("%s/%s", c.String(flags.GlobalPiplineProfile), c.String(flags.PiplineFile))
-
-		steps, err := parsePipeYaml(pipelineFile)
-		if err != nil {
-			return err
-		}
-
-		if reverse {
-			for i, j := 0, len(steps.Steps)-1; i < j; i, j = i+1, j-1 {
-				steps.Steps[i], steps.Steps[j] = steps.Steps[j], steps.Steps[i]
-			}
-		}
-
-		c.Context = context.WithValue(c.Context, stepsCtx, steps)
-
-		return nil
-	}
 }
 
 

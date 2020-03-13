@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
@@ -13,6 +14,7 @@ var (
 
 func LoadCommands() {
 	fls := append(flags.Flags, flags.RequiredFlags...)
+	pipeFlags := append(fls, flags.PipeFlags...)
 
 	Commands = []*cli.Command{
 		{
@@ -62,7 +64,7 @@ func LoadCommands() {
 					UsageText: "*** deploy ",
 					Usage:     "deploy",
 					Before:    beforeAction(loadSteps(false)),
-					Flags:     append(fls, flags.PipeFlags...),
+					Flags:     append(pipeFlags, flags.ApplyFlags...),
 					Action:    commandAction(pipeDeploy),
 				},
 				{
@@ -83,6 +85,10 @@ func commandAction(actionFns ...func(*cli.Context, ...CommandOption) error) func
 		fmt.Printf("\n %s %s\n", c.Command.UsageText, CurrentDir())
 		for _, f := range c.Command.Flags {
 			fmt.Printf("\t *  %s: %+v\n", f.Names()[0], c.String(f.Names()[0]))
+		}
+
+		if c.IsSet(flags.Test) {
+			return nil
 		}
 
 		for _, fn := range actionFns {
@@ -137,4 +143,25 @@ func replaceModuleTfvars(c *cli.Context) error {
 	}
 
 	return c.Set(flags.ModuleTfvars, newMtv)
+}
+
+func loadSteps(reverse bool) func (c *cli.Context) error {
+	return func(c *cli.Context) error {
+		pipelineFile := fmt.Sprintf("%s/%s", c.String(flags.GlobalPiplineProfile), c.String(flags.PiplineFile))
+
+		steps, err := parsePipeYaml(pipelineFile)
+		if err != nil {
+			return err
+		}
+
+		if reverse {
+			for i, j := 0, len(steps.Steps)-1; i < j; i, j = i+1, j-1 {
+				steps.Steps[i], steps.Steps[j] = steps.Steps[j], steps.Steps[i]
+			}
+		}
+
+		c.Context = context.WithValue(c.Context, stepsCtx, steps)
+
+		return nil
+	}
 }

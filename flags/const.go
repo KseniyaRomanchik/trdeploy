@@ -20,6 +20,7 @@ const (
 	PiplineFile          = "pipeline-file"
 	Parallelism          = "parallelism"
 	Timeout              = "timeout"
+	Test                 = "test"
 
 	versionTemplate = `Version: %s
 Commit: %s

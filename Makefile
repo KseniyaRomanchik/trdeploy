@@ -3,6 +3,9 @@ export WORKDIR=/go/src/trdeploy
 export COMMIT=$(shell git rev-parse HEAD)
 export DATE=$(shell date +%d-%m-%Y__%T)
 
+export TERRAGRUNT_CONFIG_NAME="terragrunt.hcl"
+export TERRAFORM_DIR=".terraform"
+
 build:
 	@echo '*** BUILD ***'
 	@docker run --env CGO_ENABLED=0 --name tdreploy-build --rm -v $(PWD)\:$(WORKDIR) $(IMAGE_NAME) /bin/sh \
@@ -10,7 +13,9 @@ build:
 	 go build -ldflags \
 	 "-X trdeploy/flags.Image=$(IMAGE_NAME) \
 	 -X trdeploy/flags.Commit=$(COMMIT) \
-	 -X trdeploy/flags.Time=$(DATE)" \
+	 -X trdeploy/flags.Time=$(DATE) \
+	 -X trdeploy/commands.TerragruntConfigName=$(TERRAGRUNT_CONFIG_NAME) \
+	 -X trdeploy/commands.TerraformDir=$(TERRAFORM_DIR)" \
 	 -o ./cmd'
 
 # 	@echo '*** BUILD ***' && \

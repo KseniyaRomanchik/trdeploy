@@ -25,7 +25,7 @@ func main() {
 	app := &cli.App{
 		Name:     "trdeploy",
 		Usage:    "trdeploy {command} --work_profile {aws} --prefix {prefix}  --arg1 value1  --arg2 value2",
-		Version:  "0.0.1",
+		Version:  "0.1.0",
 		Flags:    flags.Flags,
 		Commands: commands.Commands,
 	}

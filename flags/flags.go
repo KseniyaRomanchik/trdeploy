@@ -86,6 +86,10 @@ func LoadFlags() error {
 			Usage: "timeout in seconds",
 			Value: 10 * 60,
 		}),
+		altsrc.NewBoolFlag(&cli.BoolFlag{
+			Name:  Test,
+			Usage: "flag for functional tests",
+		}),
 	}
 
 	return nil

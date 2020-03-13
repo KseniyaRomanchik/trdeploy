@@ -21,8 +21,8 @@ func initAction(c *cli.Context, opts ...CommandOption) error {
 
 	initDir, initPath := getPaths(cmd.Dir)
 
-	terragruntConfigPath := initPath + "/" + terragruntConfigName
-	terraformDirPath := initPath + "/.terraform"
+	terragruntConfigPath := initPath + "/" + TerragruntConfigName
+	terraformDirPath := initPath + "/" + TerraformDir
 	terraformStatePath := fmt.Sprintf("%s/%s/%s_%s_%s.tfstate", wp, prefix, wp, prefix, initDir)
 
 	tCfg := fmt.Sprintf(
@@ -39,7 +39,7 @@ func initAction(c *cli.Context, opts ...CommandOption) error {
 	}
 
 	if err := os.RemoveAll(terragruntConfigPath); !os.IsNotExist(err) && err != nil {
-		return fmt.Errorf("delete %s error: %+v", terragruntConfigName, err)
+		return fmt.Errorf("delete %s error: %+v", TerragruntConfigName, err)
 	}
 
 	err := ioutil.WriteFile(terragruntConfigPath, []byte(tCfg), 0777)
