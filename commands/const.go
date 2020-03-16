@@ -7,8 +7,6 @@ import (
 )
 
 const (
-	TerragruntConfigName  = "terragrunt.hcl"
-	TerraformDir = ".terraform"
 	terragruntConfigTempl = `remote_state {
 	backend = "s3"
 		config =  {
@@ -31,6 +29,11 @@ const (
 	stepsCtx = "steps"
 
 	defaultDestroyOperations = 1
+)
+
+var (
+	TerragruntConfigName  = "terragrunt.hcl"
+	TerraformDir = ".terraform"
 )
 
 func currentPath() string {

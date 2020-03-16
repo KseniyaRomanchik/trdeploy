@@ -21,8 +21,10 @@ const (
 	Parallelism          = "parallelism"
 	Timeout              = "timeout"
 	Test                 = "test"
+	LogLevel             = "log-level"
 
-	versionTemplate = `Version: %s
+	versionTemplate = `
+Version: %s
 Commit: %s
 Image: %s
 Timestamp: %s

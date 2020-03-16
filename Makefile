@@ -1,10 +1,10 @@
+include .env
+export
+
 export IMAGE_NAME=golang:1.13.5-alpine3.11
 export WORKDIR=/go/src/trdeploy
 export COMMIT=$(shell git rev-parse HEAD)
 export DATE=$(shell date +%d-%m-%Y__%T)
-
-export TERRAGRUNT_CONFIG_NAME="terragrunt.hcl"
-export TERRAFORM_DIR=".terraform"
 
 build:
 	@echo '*** BUILD ***'

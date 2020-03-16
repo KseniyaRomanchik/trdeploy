@@ -90,6 +90,11 @@ func LoadFlags() error {
 			Name:  Test,
 			Usage: "flag for functional tests",
 		}),
+		altsrc.NewIntFlag(&cli.IntFlag{
+			Name:  LogLevel,
+			Usage: "set log level",
+			Value: 2,
+		}),
 	}
 
 	return nil

@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 	"trdeploy/flags"
@@ -82,10 +83,13 @@ func LoadCommands() {
 
 func commandAction(actionFns ...func(*cli.Context, ...CommandOption) error) func(c *cli.Context) error {
 	return func(c *cli.Context) error {
-		fmt.Printf("\n %s %s\n", c.Command.UsageText, CurrentDir())
+		commandInfoString := fmt.Sprintf("\n\t %s %s\n", c.Command.UsageText, CurrentDir())
+
 		for _, f := range c.Command.Flags {
-			fmt.Printf("\t *  %s: %+v\n", f.Names()[0], c.String(f.Names()[0]))
+			commandInfoString += fmt.Sprintf("\n\t *  %s: %+v", f.Names()[0], c.String(f.Names()[0]))
 		}
+
+		log.Info(commandInfoString)
 
 		if c.IsSet(flags.Test) {
 			return nil
@@ -103,6 +107,8 @@ func commandAction(actionFns ...func(*cli.Context, ...CommandOption) error) func
 
 func beforeAction(beforeFns ...func(*cli.Context) error) func(c *cli.Context) error {
 	return func(c *cli.Context) error {
+		log.SetLevel(log.Level(c.Int(flags.LogLevel)))
+
 		if err := replaceModuleTfvars(c); err != nil {
 			return err
 		}

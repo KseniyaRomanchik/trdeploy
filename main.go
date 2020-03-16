@@ -11,7 +11,6 @@ import (
 func init() {
 	log.SetFormatter(&log.TextFormatter{})
 	log.SetOutput(os.Stdout)
-	log.SetLevel(log.DebugLevel)
 
 	err := flags.LoadFlags()
 	if err != nil {
@@ -28,6 +27,10 @@ func main() {
 		Version:  "0.1.0",
 		Flags:    flags.Flags,
 		Commands: commands.Commands,
+		//Action: func(c *cli.Context) error {
+		//
+		//	return nil
+		//},
 	}
 
 	err := app.Run(os.Args)

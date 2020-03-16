@@ -1,10 +1,10 @@
 package flags
 
 import (
-	"fmt"
+	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )
 
 func printVersion(c *cli.Context) {
-	fmt.Printf(versionTemplate, c.App.Version, Commit, Image, Time)
+	log.Printf(versionTemplate, c.App.Version, Commit, Image, Time)
 }
