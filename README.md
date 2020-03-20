@@ -47,7 +47,7 @@ trdeploy
 
 `--timeout` command timeout in seconds (default: 600)
 
-`--log-level` (default: 2)
+`--log-level` (default: 4)
 
 `--prefix` ???desc???
 

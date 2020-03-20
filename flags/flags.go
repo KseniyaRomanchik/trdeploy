@@ -93,7 +93,7 @@ func LoadFlags() error {
 		altsrc.NewIntFlag(&cli.IntFlag{
 			Name:  LogLevel,
 			Usage: "set log level",
-			Value: 2,
+			Value: 4,
 		}),
 	}
 
