@@ -37,7 +37,7 @@ func execute(args []string, c *cli.Context, opts ...CommandOption) error {
 		printThreadOutput(cmd)
 	}
 
-	stopSignaling := signalingProcess(cmd, c.Int(flags.Timeout))
+	stopSignaling := signalingProcess(&cmd, c.Int(flags.Timeout))
 
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("terragrunt %s error: %s", args[0], err)
@@ -93,34 +93,48 @@ func printThreadOutput(cmd Command) {
 	}()
 }
 
-func signalingProcess(cmd Command, timeout int) func() {
+func signalingProcess(cmd *Command, timeout int) func() {
 	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 
-	go func (cmd Command) {
+	var threadMessage string
+	if len(cmd.Env) > 0 {
+		threadMessage = fmt.Sprintf("%s | ", cmd.Env[0])
+	}
+
+	go func (cmd *Command) {
 		for sig := range exit {
 			signal.Stop(exit)
 
-			var threadMessage string
-			if len(cmd.Env) > 0 {
-				threadMessage = fmt.Sprintf("%s | ", cmd.Env[0])
-			}
+			log.Warnf("%sSignal message: %v", threadMessage, sig)
 
-			log.Warnf("%sSignal interrupting message: %v", threadMessage, sig)
+			if cmd.Process == nil {
+				return
+			}
 
 			if err := cmd.Process.Signal(sig); err != nil {
-				log.Errorf("%sSignal interrupting error: %v", threadMessage, err)
-			}
-
-			time.Sleep(time.Duration(timeout) * time.Second)
-
-			if err := cmd.Process.Kill(); err != nil {
-				log.Errorf("%sKilling process error: %v", threadMessage, err)
+				log.Errorf("%sSignal error: %v", threadMessage, err)
 			}
 		}
 	}(cmd)
 
-	return func() { signal.Stop(exit) }
+	go func (cmd *Command) {
+		time.Sleep(time.Duration(timeout) * time.Second)
+
+		log.Warnf("%sKilling the process with timeout...", threadMessage)
+
+		if cmd.Process == nil {
+			return
+		}
+
+		if err := cmd.Process.Kill(); err != nil {
+			log.Errorf("%sKilling process error: %v", threadMessage, err)
+		}
+	}(cmd)
+
+	return func() {
+		signal.Stop(exit)
+	}
 }
 
 func savePlanLog(name string) error {

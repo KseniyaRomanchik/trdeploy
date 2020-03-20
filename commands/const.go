@@ -25,7 +25,6 @@ const (
 	Deploy = "deploy"
 	Pipe = "pipe"
 
-	configFileName = "config"
 	stepsCtx = "steps"
 
 	defaultDestroyOperations = 1

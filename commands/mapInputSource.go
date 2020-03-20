@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"strings"
 	"time"
+	_flags "trdeploy/flags"
 )
 
 // copy of github.com/urfave/cli/v2@v2.0.0/altsrc/map_input_source.go for nested config hack
@@ -29,7 +30,7 @@ func prepareNestedInputSource(mic altsrc.InputSourceContext, path string, flags 
 		newValueMap[flagname] = value
 	}
 
-	return &MapInputSource{file: configFileName, valueMap: newValueMap}
+	return &MapInputSource{file: _flags.Config, valueMap: newValueMap}
 }
 
 func nestedVal(name string, tree map[interface{}]interface{}) (interface{}, bool) {

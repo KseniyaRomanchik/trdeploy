@@ -3,6 +3,7 @@ terragrunt.hcl
 vendor
 .idea
 cmd
+.env
 
 **/.terraform/
-/example/pipline_profile/test.yaml
+**/test.yaml

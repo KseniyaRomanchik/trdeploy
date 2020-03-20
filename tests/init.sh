@@ -11,9 +11,9 @@ TF_FILES="${TEST_RES}/${TERRAFORM_DIR}"
 
 cd ${TEST_RES}
 
-printf "Start tesing in ${TEST_RES}...\n"
+printf "Start init tesing in ${TEST_RES}...\n"
 
-${BASE_PATH}/cmd/trdeploy init --work-profile=work --prefix=trdeploy --global-var-path="${BASE_PATH}/example/var" --global-pipline-profile="${BASE_PATH}/example/pipline_profile"  --base-path="${BASE_PATH}/example" --s3-state-bucket="trdeploy-terraform-state-backet" --dynamodb-lock-table="trdeploy-terraform-state-backet-lock" --audit-profile="audit" 2> /dev/null
+${BASE_PATH}/cmd/trdeploy init --work-profile=work --prefix=trdeploy --global-var-path="${BASE_PATH}/example/var" --global-pipeline-profile="${BASE_PATH}/example/pipeline_profile"  --base-path="${BASE_PATH}/example" --s3-state-bucket="trdeploy-terraform-state-backet" --dynamodb-lock-table="trdeploy-terraform-state-backet-lock" --audit-profile="audit" 2> /dev/null
 
 if [ $? -eq 0 ];
 then

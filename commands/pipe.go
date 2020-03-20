@@ -48,7 +48,7 @@ func pipe(c *cli.Context, action func(thread, ...CommandOption) error) error {
 	multithread := c.IsSet(flags.Multithread) && c.Bool(flags.Multithread)
 	steps, ok := c.Value(stepsCtx).(*pipelineSteps)
 	if !ok {
-		return fmt.Errorf("not pipline steps: %+v", c.Value(stepsCtx))
+		return fmt.Errorf("not pipeline steps: %+v", c.Value(stepsCtx))
 	}
 	var wg sync.WaitGroup
 

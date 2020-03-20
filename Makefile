@@ -15,8 +15,9 @@ build:
 	 -X trdeploy/flags.Commit=$(COMMIT) \
 	 -X trdeploy/flags.Time=$(DATE) \
 	 -X trdeploy/commands.TerragruntConfigName=$(TERRAGRUNT_CONFIG_NAME) \
-	 -X trdeploy/commands.TerraformDir=$(TERRAFORM_DIR)" \
-	 -o ./cmd'
+	 -X trdeploy/commands.TerraformDir=$(TERRAFORM_DIR) \
+	 -X trdeploy/flags.ConfigFileName=$(CONFIG_FILE_NAME)" \
+ 	 -o ./cmd'
 
 # 	@echo '*** BUILD ***' && \
 # 	@docker build . --tag trdeploy-build --build-arg IMAGE_NAME=$IMAGE_NAME --build-arg WORKDIR=$WORKDIR \

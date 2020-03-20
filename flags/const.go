@@ -9,7 +9,7 @@ const (
 	AdditionalArgs       = "additional-args"
 	ModuleTfvars         = "module-tfvars"
 	GlobalVarPath        = "global-var-path"
-	GlobalPiplineProfile = "global-pipline-profile"
+	GlobalPipelineProfile = "global-pipeline-profile"
 	BasePath             = "base-path"
 	Config               = "config"
 	PlanFile             = "plan-file"
@@ -17,7 +17,7 @@ const (
 	Prefix               = "prefix"
 	WorkProfile          = "work-profile"
 	Multithread          = "multithread"
-	PiplineFile          = "pipeline-file"
+	PipelineFile          = "pipeline-file"
 	Parallelism          = "parallelism"
 	Timeout              = "timeout"
 	Test                 = "test"
@@ -35,4 +35,13 @@ var (
 	Image  string
 	Commit string
 	Time   string
+	ConfigFileName = "trdeploy"
+	RequiredConfigFlags = []string{
+		GlobalVarPath,
+		GlobalPipelineProfile,
+		S3StateBucket,
+		DynamoDBLockTable,
+		BasePath,
+		AuditProfile,
+	}
 )

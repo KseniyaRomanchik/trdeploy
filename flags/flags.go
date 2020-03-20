@@ -19,9 +19,9 @@ func LoadFlags() error {
 		return err
 	}
 
-	configPath := fmt.Sprintf("%s/.%s.yaml", home, "trdeploy")
+	configPath := fmt.Sprintf("%s/.%s.yaml", home, ConfigFileName)
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		configPath = fmt.Sprintf("/etc/%s.yaml", "trdeploy")
+		configPath = fmt.Sprintf("/etc/%s.yaml", ConfigFileName)
 	}
 
 	Flags = []cli.Flag{
@@ -62,7 +62,7 @@ func LoadFlags() error {
 			Usage: "path  global var.tf (default from /etc/tdeploy.yaml)",
 		}),
 		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  GlobalPiplineProfile,
+			Name:  GlobalPipelineProfile,
 			Usage: "path  global var.tf (default from /etc/tdeploy.yaml)",
 		}),
 		altsrc.NewStringFlag(&cli.StringFlag{
@@ -119,7 +119,7 @@ var PipeFlags = []cli.Flag{
 		Usage: "multithread",
 	}),
 	altsrc.NewStringFlag(&cli.StringFlag{
-		Name:     PiplineFile,
+		Name:     PipelineFile,
 		Usage:    "Global pipeline profile file name",
 		Required: true,
 	}),

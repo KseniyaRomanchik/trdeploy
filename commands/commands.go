@@ -114,7 +114,13 @@ func beforeAction(beforeFns ...func(*cli.Context) error) func(c *cli.Context) er
 		}
 
 		if err := loadFromConfig(c); err != nil {
-			return err
+			log.Warn(err)
+		}
+
+		for _, f := range flags.RequiredConfigFlags {
+			if !c.IsSet(f) {
+				return fmt.Errorf("%s flag is required", f)
+			}
 		}
 
 		for _, fn := range beforeFns {
@@ -128,7 +134,10 @@ func beforeAction(beforeFns ...func(*cli.Context) error) func(c *cli.Context) er
 }
 
 func loadFromConfig(c *cli.Context) error {
-	mic, _ := altsrc.NewYamlSourceFromFlagFunc(configFileName)(c)
+	mic, err := altsrc.NewYamlSourceFromFlagFunc(flags.Config)(c)
+	if err != nil {
+		return fmt.Errorf("Flags from yaml loading error: %+v", err)
+	}
 
 	return altsrc.InitInputSourceWithContext(
 		c.App.Flags,
@@ -153,7 +162,7 @@ func replaceModuleTfvars(c *cli.Context) error {
 
 func loadSteps(reverse bool) func (c *cli.Context) error {
 	return func(c *cli.Context) error {
-		pipelineFile := fmt.Sprintf("%s/%s", c.String(flags.GlobalPiplineProfile), c.String(flags.PiplineFile))
+		pipelineFile := fmt.Sprintf("%s/%s", c.String(flags.GlobalPipelineProfile), c.String(flags.PipelineFile))
 
 		steps, err := parsePipeYaml(pipelineFile)
 		if err != nil {
