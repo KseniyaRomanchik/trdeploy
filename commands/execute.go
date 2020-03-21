@@ -57,7 +57,7 @@ func printThreadOutput(cmd Command) {
 
 	outReader, err := cmd.StdoutPipe()
 	if err != nil {
-		log.Errorln(os.Stderr, "Error creating StdoutPipe for Cmd", err)
+		log.Error("Error creating StdoutPipe for Cmd", err)
 		return
 	}
 
@@ -65,7 +65,7 @@ func printThreadOutput(cmd Command) {
 	go func() {
 		defer func() {
 			if err := outReader.Close(); err != nil {
-				log.Errorln("out reader closing error: ", err)
+				log.Error("out reader closing error: ", err)
 			}
 		}()
 
@@ -76,7 +76,7 @@ func printThreadOutput(cmd Command) {
 
 	errReader, err := cmd.StderrPipe()
 	if err != nil {
-		log.Errorln(os.Stderr, "Error creating StderrPipe for Cmd", err)
+		log.Error("Error creating StderrPipe for Cmd", err)
 		return
 	}
 
