@@ -16,10 +16,6 @@ import (
 )
 
 func execute(args []string, c *cli.Context, opts ...CommandOption) error {
-	if c.IsSet(flags.AdditionalArgs) {
-		args = append(args, c.String(flags.AdditionalArgs))
-	}
-
 	cmd := Command{Cmd: exec.Command("terragrunt", args...)}
 
 	for _, opt := range opts {
@@ -102,7 +98,7 @@ func signalingProcess(cmd *Command, timeout int) func() {
 		threadMessage = fmt.Sprintf("%s | ", cmd.Env[0])
 	}
 
-	go func (cmd *Command) {
+	go func(cmd *Command) {
 		for sig := range exit {
 			signal.Stop(exit)
 
@@ -118,7 +114,7 @@ func signalingProcess(cmd *Command, timeout int) func() {
 		}
 	}(cmd)
 
-	go func (cmd *Command) {
+	go func(cmd *Command) {
 		time.Sleep(time.Duration(timeout) * time.Second)
 
 		log.Warnf("%sKilling the process with timeout...", threadMessage)

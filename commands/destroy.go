@@ -15,5 +15,9 @@ func destroy(c *cli.Context, opts ...CommandOption) error {
 
 	opts = append(opts, Cmd(c), Parallelism(p))
 
+	if c.IsSet(flags.AdditionalArgs) {
+		command = append(command, c.String(flags.AdditionalArgs))
+	}
+
 	return execute(command, c, opts...)
 }

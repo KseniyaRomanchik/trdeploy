@@ -27,10 +27,6 @@ func main() {
 		Version:  "0.1.0",
 		Flags:    flags.Flags,
 		Commands: commands.Commands,
-		//Action: func(c *cli.Context) error {
-		//
-		//	return nil
-		//},
 	}
 
 	err := app.Run(os.Args)
