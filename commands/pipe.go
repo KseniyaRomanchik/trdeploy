@@ -18,16 +18,16 @@ type pipelineSteps struct {
 }
 
 type step struct {
-	Name    string `yaml:"name"`
+	Name    string   `yaml:"name"`
 	Threads []thread `yaml:"threads"`
 }
 
 type thread struct {
-	Name       string `yaml:"name"`
-	Path       string `yaml:"path"`
-	VarProfile string `yaml:"var_profile"`
+	Name        string `yaml:"name"`
+	Path        string `yaml:"path"`
+	VarProfile  string `yaml:"var_profile"`
+	Parallelism int    `yaml:"parallelism"`
 }
-
 
 func parsePipeYaml(pipelineFile string) (*pipelineSteps, error) {
 	if _, err := os.Stat(pipelineFile); err != nil {
@@ -46,49 +46,50 @@ func parsePipeYaml(pipelineFile string) (*pipelineSteps, error) {
 
 func pipe(c *cli.Context, action func(thread, ...CommandOption) error) error {
 	multithread := c.IsSet(flags.Multithread) && c.Bool(flags.Multithread)
-	steps, ok := c.Value(stepsCtx).(*pipelineSteps)
+	steps, ok := c.Value(stepsCtxName).(*pipelineSteps)
 	if !ok {
-		return fmt.Errorf("not pipeline steps: %+v", c.Value(stepsCtx))
+		return fmt.Errorf("not pipeline steps format: %+v", c.Value(stepsCtxName))
 	}
 	var wg sync.WaitGroup
 
 	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 
-	Steps:
-		for i, s := range steps.Steps {
-			errs := make(chan error, len(s.Threads))
+Steps:
+	for i, s := range steps.Steps {
+		errs := make(chan error, len(s.Threads))
 
-		Threads:
-			for j, th := range s.Threads {
-				opt := ThreadName(s.Name, th.Name)
-				wg.Add(1)
+	Threads:
+		for j, th := range s.Threads {
+			threadOptions := []CommandOption{ThreadName(s.Name, th.Name)}
 
-				log.Debugf("\n*** Step %d %s, Thread %d %s\n", i+1, s.Name, j+1, th.Name)
+			wg.Add(1)
 
-				if !multithread {
-					if err := action(th, opt); err != nil {
-						errs <- err
-						wg.Done()
-						break Threads
-					}
+			log.Debugf("\n*** Step %d %s, Thread %d %s\n", i+1, s.Name, j+1, th.Name)
 
+			if !multithread {
+				if err := action(th, threadOptions...); err != nil {
+					errs <- err
 					wg.Done()
-					continue Threads
+					break Threads
 				}
 
-				go func(th thread) {
-					defer wg.Done()
-					errs <- action(th, opt)
-				}(th)
+				wg.Done()
+				continue Threads
 			}
 
-			wg.Wait()
-
-			if isExited(errs, exit) {
-				break Steps
-			}
+			go func(th thread) {
+				defer wg.Done()
+				errs <- action(th, threadOptions...)
+			}(th)
 		}
+
+		wg.Wait()
+
+		if isExited(errs, exit) {
+			break Steps
+		}
+	}
 
 	return nil
 }

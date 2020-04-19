@@ -160,7 +160,7 @@ func replaceModuleTfvars(c *cli.Context) error {
 	return c.Set(flags.ModuleTfvars, newMtv)
 }
 
-func loadSteps(reverse bool) func (c *cli.Context) error {
+func loadSteps(reverse bool) func(c *cli.Context) error {
 	return func(c *cli.Context) error {
 		pipelineFile := fmt.Sprintf("%s/%s", c.String(flags.GlobalPipelineProfile), c.String(flags.PipelineFile))
 
@@ -175,7 +175,7 @@ func loadSteps(reverse bool) func (c *cli.Context) error {
 			}
 		}
 
-		c.Context = context.WithValue(c.Context, stepsCtx, steps)
+		c.Context = context.WithValue(c.Context, stepsCtxName, steps)
 
 		return nil
 	}

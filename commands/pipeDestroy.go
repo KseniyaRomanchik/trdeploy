@@ -23,6 +23,10 @@ func pipeDestroy(c *cli.Context, options ...CommandOption) error {
 			opts = append(opts, AutoApprove())
 		}
 
+		if !c.IsSet(flags.Parallelism) && th.Parallelism != 0 {
+			opts = append(opts, Parallelism(th.Parallelism))
+		}
+
 		if err := destroy(c, opts...); err != nil {
 			return fmt.Errorf("%s, Apply pipe-destroy error %s: %s", th.Name, execPath, err)
 		}

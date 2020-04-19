@@ -18,21 +18,21 @@ const (
 			profile = "%s"
 		}
 }`
-	Init       = "init"
-	Plan       = "plan"
-	Apply      = "apply"
-	Destroy    = "destroy"
-	Deploy = "deploy"
-	Pipe = "pipe"
+	Init    = "init"
+	Plan    = "plan"
+	Apply   = "apply"
+	Destroy = "destroy"
+	Deploy  = "deploy"
+	Pipe    = "pipe"
 
-	stepsCtx = "steps"
+	stepsCtxName = "steps"
 
 	defaultDestroyOperations = 1
 )
 
 var (
-	TerragruntConfigName  = "terragrunt.hcl"
-	TerraformDir = ".terraform"
+	TerragruntConfigName = "terragrunt.hcl"
+	TerraformDir         = ".terraform"
 )
 
 func currentPath() string {
