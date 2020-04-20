@@ -15,21 +15,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker run --env CGO_ENABLED=0 --name tdreploy-build --rm -v $(PWD)\:${{ WORKDIR }} ${{ IMAGE_NAME }} /bin/sh \
-        -c 'cd ${{ WORKDIR }} && mkdir -p cmd && \
-         go build -ldflags \
-         "-X trdeploy/flags.Image=${{ IMAGE_NAME }} \
-         -X trdeploy/flags.Commit=${{ COMMIT }} \
-         -X trdeploy/flags.Time=${{ DATE }} \
-         -X trdeploy/commands.TerragruntConfigName=${{ TERRAGRUNT_CONFIG_NAME }} \
-         -X trdeploy/commands.TerraformDir=${{ TERRAFORM_DIR }} \
-         -X trdeploy/flags.ConfigFileName=${{ CONFIG_FILE_NAME }}" \
-         -o ./cmd'
-       env:
-         IMAGE_NAME: golang:1.13.5-alpine3.11
-         WORKDIR: /go/src/trdeploy
-         COMMIT: $(shell git rev-parse HEAD)
-         DATE: $(shell date +%d-%m-%Y__%T)
-         TERRAGRUNT_CONFIG_NAME: "terragrunt.hcl"
-         TERRAFORM_DIR: ".terraform"
-         CONFIG_FILE_NAME: trdeploy
+      run: docker run --env CGO_ENABLED=0 --name tdreploy-build --rm -v $(PWD)\:${{ WORKDIR }} ${{ IMAGE_NAME }} /bin/sh -c 'cd ${{ WORKDIR }} && mkdir -p cmd && go build -ldflags "-X trdeploy/flags.Image=${{ IMAGE_NAME }} -X trdeploy/flags.Commit=${{ COMMIT }} -X trdeploy/flags.Time=${{ DATE }} -X trdeploy/commands.TerragruntConfigName=${{ TERRAGRUNT_CONFIG_NAME }} -X trdeploy/commands.TerraformDir=${{ TERRAFORM_DIR }} -X trdeploy/flags.ConfigFileName=${{ CONFIG_FILE_NAME }}" -o ./cmd'
+      env:
+        IMAGE_NAME: golang:1.13.5-alpine3.11
+        WORKDIR: /go/src/trdeploy
+        COMMIT: $(shell git rev-parse HEAD)
+        DATE: $(shell date +%d-%m-%Y__%T)
+        TERRAGRUNT_CONFIG_NAME: "terragrunt.hcl"
+        TERRAFORM_DIR: ".terraform"
+        CONFIG_FILE_NAME: trdeploy
