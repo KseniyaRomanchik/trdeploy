@@ -98,12 +98,14 @@ steps:
     threads:
       - name : res0
         path: share_resources/res0
+        parallelism: 5
   - name: step2
     threads:
       - name : res1
         path: share_resources/res1
       - name : res2
         path: share_resources/res2
+        parallelism: 5
   - name: step3
     threads:
       - name : res3
