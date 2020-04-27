@@ -28,15 +28,7 @@ jobs:
     needs: [build]
     steps:
       - name: deploy     
-        run: response=$(curl \
-            -sSL \
-            -XPOST \
-            -H "Authorization:token ${GITHUB_TOKEN}" \
-            --upload-file "${file}" \
-            --header "Content-Type:application/octet-stream" \
-            --write-out "%{http_code}" \
-            --output $(mktemp) \
-            "https://uploads.github.com/repos/${GITHUB_REPOSITORY}/releases/${COMMIT}/assets?name=$(basename "trdeploy")")
+        run: response=$(curl -sSL -XPOST -H "Authorization:token ${GITHUB_TOKEN}" --upload-file "${file}" --header "Content-Type:application/octet-stream" --write-out "%{http_code}" --output $(mktemp) "https://uploads.github.com/repos/${GITHUB_REPOSITORY}/releases/${COMMIT}/assets?name=$(basename "trdeploy")")
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMMIT: $(shell git rev-parse HEAD)
