@@ -9,15 +9,15 @@ export DATE=$(shell date +%d-%m-%Y__%T)
 build:
 	@echo '*** BUILD ***'
 	@docker run --env CGO_ENABLED=0 --name tdreploy-build --rm -v $(PWD)\:$(WORKDIR) $(IMAGE_NAME) /bin/sh \
-	-c 'cd $(WORKDIR) && mkdir -p cmd && \
+	-c "cd $(WORKDIR) && mkdir -p cmd && \
 	 go build -ldflags \
-	 "-X trdeploy/flags.Image=$(IMAGE_NAME) \
+	 \"-X trdeploy/flags.Image=$(IMAGE_NAME) \
 	 -X trdeploy/flags.Commit=$(COMMIT) \
 	 -X trdeploy/flags.Time=$(DATE) \
 	 -X trdeploy/commands.TerragruntConfigName=$(TERRAGRUNT_CONFIG_NAME) \
 	 -X trdeploy/commands.TerraformDir=$(TERRAFORM_DIR) \
-	 -X trdeploy/flags.ConfigFileName=$(CONFIG_FILE_NAME)" \
- 	 -o ./cmd'
+	 -X trdeploy/flags.ConfigFileName=$(CONFIG_FILE_NAME)\" \
+ 	 -o ./cmd"
 
 # 	@echo '*** BUILD ***' && \
 # 	@docker build . --tag trdeploy-build --build-arg IMAGE_NAME=$IMAGE_NAME --build-arg WORKDIR=$WORKDIR \
