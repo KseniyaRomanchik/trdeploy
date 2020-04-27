@@ -24,6 +24,6 @@ jobs:
         TERRAGRUNT_CONFIG_NAME: "terragrunt.hcl"
         TERRAFORM_DIR: ".terraform"
         CONFIG_FILE_NAME: trdeploy
-  publish:
-    runs-on: ubuntu-latest
-    needs: [build]
+#   publish:
+#     runs-on: ubuntu-latest
+#     needs: [build]
