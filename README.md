@@ -1,5 +1,5 @@
 trdeploy
-![build](https://github.com/KseniyaRomanchik/trdeploy/workflows/trdeploy/badge.svg?sanitize=true)
+![build](![trdeploy](https://github.com/KseniyaRomanchik/trdeploy/workflows/trdeploy/badge.svg?branch=ci&event=push))
 ================================
 
 #### Commands
