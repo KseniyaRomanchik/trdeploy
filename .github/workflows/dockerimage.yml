@@ -2,11 +2,11 @@ name: trdeploy
 
 on:
   push:
-    branches: [ ci ]
+    branches: [ master ]
     tags:
       - '*'
   pull_request:
-    branches: [ ci ]
+    branches: [ master ]
 
 jobs:
 
@@ -16,19 +16,20 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker run --env CGO_ENABLED=0 --name tdreploy-build --rm -v $(pwd):$WORKDIR $IMAGE_NAME /bin/sh -c "cd ${WORKDIR} && mkdir -p cmd && go build -ldflags \"-X trdeploy/flags.Image=${IMAGE_NAME} -X trdeploy/flags.Commit=${COMMIT} -X trdeploy/flags.Time=${DATE} -X trdeploy/commands.TerragruntConfigName=${TERRAGRUNT_CONFIG_NAME} -X trdeploy/commands.TerraformDir=${TERRAFORM_DIR} -X trdeploy/flags.ConfigFileName=${CONFIG_FILE_NAME}\" -o ./cmd"
-      env:
-        IMAGE_NAME: golang:1.13.5-alpine3.11
-        WORKDIR: /go/src/trdeploy
-        COMMIT: $(shell git rev-parse HEAD)
-        DATE: $(shell date +%d-%m-%Y__%T)
-        TERRAGRUNT_CONFIG_NAME: "terragrunt.hcl"
-        TERRAFORM_DIR: ".terraform"
-        CONFIG_FILE_NAME: trdeploy
+      run: printf 'TERRAGRUNT_CONFIG_NAME="terragrunt.hcl\nTERRAFORM_DIR=".terraform\nCONFIG_FILE_NAME=trdeploy' > .env && make build
+#       run: docker run --env CGO_ENABLED=0 --name tdreploy-build --rm -v $(pwd):$WORKDIR $IMAGE_NAME /bin/sh -c "cd ${WORKDIR} && mkdir -p cmd && go build -ldflags \"-X trdeploy/flags.Image=${IMAGE_NAME} -X trdeploy/flags.Commit=${COMMIT} -X trdeploy/flags.Time=${DATE} -X trdeploy/commands.TerragruntConfigName=${TERRAGRUNT_CONFIG_NAME} -X trdeploy/commands.TerraformDir=${TERRAFORM_DIR} -X trdeploy/flags.ConfigFileName=${CONFIG_FILE_NAME}\" -o ./cmd"
+#       env:
+#         IMAGE_NAME: golang:1.13.5-alpine3.11
+#         WORKDIR: /go/src/trdeploy
+#         COMMIT: $(shell git rev-parse HEAD)
+#         DATE: $(shell date +%d-%m-%Y__%T)
+#         TERRAGRUNT_CONFIG_NAME: "terragrunt.hcl"
+#         TERRAFORM_DIR: ".terraform"
+#         CONFIG_FILE_NAME: trdeploy
     - uses: xresloader/upload-to-github-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         file: "cmd/trdeploy"
         tags: true
-        draft: true
+        draft: false
