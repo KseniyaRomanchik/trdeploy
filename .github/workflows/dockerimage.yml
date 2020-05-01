@@ -49,7 +49,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         file: "cmd/trdeploy"
-        tags: true
+        tags: false
         draft: true
 
 #   deploy:
