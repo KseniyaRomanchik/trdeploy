@@ -3,6 +3,8 @@ name: trdeploy
 on:
   push:
     branches: [ ci ]
+    tags:
+      - '*'
   pull_request:
     branches: [ ci ]
 
