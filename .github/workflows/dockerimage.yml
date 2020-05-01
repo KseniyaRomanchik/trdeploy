@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: trdeploy
 
 on:
   push:
@@ -9,8 +9,20 @@ on:
 jobs:
 
   build:
-
     runs-on: ubuntu-latest
+    name: build
+    
+#     steps:
+#       - name: Checkout the repository
+#         uses: actions/checkout@ci
+#       - name: Generate the artifacts
+#         uses: KseniyaRomanchik/github-action-build@master
+#       - name: Upload the artifacts
+#         uses: KseniyaRomanchik/github-action-publish-binaries@master
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         with:
+#           args: 'example-*'
 
     steps:
     - uses: actions/checkout@v2
@@ -24,3 +36,43 @@ jobs:
         TERRAGRUNT_CONFIG_NAME: "terragrunt.hcl"
         TERRAFORM_DIR: ".terraform"
         CONFIG_FILE_NAME: trdeploy
+#     - name: check
+#       run: ls -la
+#     - uses: actions/upload-artifact@v2
+#       with:
+#         name: artifact
+#         path: cmd/trdeploy
+    - uses: xresloader/upload-to-github-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        file: "cmd/trdeploy"
+        tags: true
+        draft: true
+
+#   deploy:
+#     name: deploy
+#     needs: [build]
+#     runs-on: [ubuntu-latest]
+#     steps:
+#       - uses: actions/checkout@v2
+#       - name: check
+#         run: ls -la
+#       - uses: actions/upload-artifact@v2
+#         with:
+#           name: my-artifact
+#           path: /home/runner/work/trdeploy/trdeploy/cmd/trdeploy
+#       - name: Set tag to env
+#         run: echo ::set-env name=TAG::$(echo ${GITHUB_REF:11})
+#       - name: Send webhook for deploy
+#         run: "curl --silent --show-error --fail -X POST ${{ secrets.DEPLOYMENT_SERVER }} -H 'Authorization: ${{ secrets.DEPLOYMENT_TOKEN }}' -H 'Content-Type: application/json' -d '{\"owner\": \"${{ secrets.DOCKER_LOGIN }}\", \"repository\": \"${{ secrets.DOCKER_NAME }}\", \"tag\": \"${{ env.TAG }}\", \"ports\": {\"8080\": 8080}}'"
+      
+#   publish:
+#     runs-on: ubuntu-latest
+#     needs: [build]
+#     steps:
+#       - name: deploy     
+#         run: response=$(curl -sSL -XPOST -H "Authorization:token ${GITHUB_TOKEN}" --upload-file "${file}" --header "Content-Type:application/octet-stream" --write-out "%{http_code}" --output $(mktemp) "https://uploads.github.com/repos/${GITHUB_REPOSITORY}/releases/${COMMIT}/assets?name=$(basename "trdeploy")")
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#           COMMIT: $(shell git rev-parse HEAD)
