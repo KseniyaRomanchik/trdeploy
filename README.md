@@ -1,4 +1,5 @@
 trdeploy
+![build](https://github.com/KseniyaRomanchik/trdeploy/workflows/trdeploy/badge.svg?sanitize=true)
 ================================
 
 #### Commands
