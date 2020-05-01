@@ -1,48 +1,29 @@
 package commands
 
 import (
-	"fmt"
 	"github.com/urfave/cli/v2"
-	"os/exec"
 	"trdeploy/flags"
 )
 
-func apply(c *cli.Context) error {
+func apply(c *cli.Context, opts ...CommandOption) error {
 	planFile := c.String(flags.PlanFile)
-	prefix := c.String(flags.Prefix)
-	additionalArgs := c.String(flags.AdditionalArgs)
-	ap := c.String(flags.AuditProfile)
-	wp := c.String(flags.WorkProfile)
-	gvp := c.String(flags.GlobalVarPath)
-	mtfv := c.String(flags.ModuleTfvars)
+	p := c.Int(flags.Parallelism)
+
+	command := []string{"apply"}
+
+	if c.IsSet(flags.Parallelism) {
+		opts = append(opts, Parallelism(p))
+	}
 
 	if c.IsSet(flags.PlanFile) {
-		cmd := exec.Command("terragrunt", "apply", "--terragrunt-config", planFile)
-
-		out, err := cmd.CombinedOutput()
-		if err != nil {
-			cli.Exit("terragrunt error", 1)
-			return fmt.Errorf("terragrunt error: %+v \n %s", err, out)
-		}
-
-		return nil
+		return execute(append(command, planFile), c, opts...)
 	}
 
-	cmdApply := exec.Command(
-		"terragrunt", "apply",
-		"-var-file", fmt.Sprintf("%s/common.tfvars", gvp),
-		"-var-file", fmt.Sprintf("%s/%s.tfvars", gvp, wp),
-		"-var-file", mtfv,
-		"-var", fmt.Sprintf("prefix=%s", prefix),
-		"-var", fmt.Sprintf("aws_audit=%s", ap),
-		additionalArgs,
-	)
+	opts = append(opts, Cmd(c))
 
-	outApply, err := cmdApply.CombinedOutput()
-	if err != nil {
-		cli.Exit("terragrunt apply error", 1)
-		return fmt.Errorf("\nterragrunt apply error: %+v \n%s", err, outApply)
+	if c.IsSet(flags.AdditionalArgs) {
+		command = append(command, c.String(flags.AdditionalArgs))
 	}
 
-	return nil
+	return execute(command, c, opts...)
 }

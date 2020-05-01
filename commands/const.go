@@ -7,7 +7,6 @@ import (
 )
 
 const (
-	terragruntConfigName  = "terragrunt.hcl"
 	terragruntConfigTempl = `remote_state {
 	backend = "s3"
 		config =  {
@@ -23,12 +22,28 @@ const (
 	Plan    = "plan"
 	Apply   = "apply"
 	Destroy = "destroy"
+	Deploy  = "deploy"
+	Pipe    = "pipe"
+
+	stepsCtxName = "steps"
+
+	defaultDestroyOperations = 1
 )
 
-func CurrentDir() string {
+var (
+	TerragruntConfigName = "terragrunt.hcl"
+	TerraformDir         = ".terraform"
+)
+
+func currentPath() string {
 	currentPath, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
 	}
-	return filepath.Base(currentPath)
+
+	return currentPath
+}
+
+func CurrentDir() string {
+	return filepath.Base(currentPath())
 }

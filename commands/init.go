@@ -6,55 +6,55 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"strings"
 	"trdeploy/flags"
 )
 
-func initAction(c *cli.Context) error {
-	err := os.RemoveAll(".terraform")
-	if !os.IsNotExist(err) && err != nil {
-		cli.Exit("delete .terraform error", 1)
-		return fmt.Errorf("delete .terraform error: %+v", err)
-	}
-
-	err = os.RemoveAll(".terraform.tfstate")
-	if !os.IsNotExist(err) && err != nil {
-		cli.Exit("delete .terraform.tfstate error", 1)
-		return fmt.Errorf("delete .terraform.tfstate error: %+v", err)
-	}
-
-	err = os.RemoveAll(terragruntConfigName)
-	if !os.IsNotExist(err) && err != nil {
-		cli.Exit(fmt.Sprintf("delete %s error", terragruntConfigName), 1)
-		return fmt.Errorf("delete %s error: %+v", terragruntConfigName, err)
-	}
-
-	//prepare_terragrunt_config
-
+func initAction(c *cli.Context, opts ...CommandOption) error {
 	prefix := c.String(flags.Prefix)
 	wp := c.String(flags.WorkProfile)
 
+	cmd := Command{Cmd: &exec.Cmd{}}
+	for _, opt := range opts {
+		cmd = opt(cmd)
+	}
+
+	initDir, initPath := getPaths(cmd.Dir)
+
+	terragruntConfigPath := initPath + "/" + TerragruntConfigName
+	terraformDirPath := initPath + "/" + TerraformDir
+	terraformStatePath := fmt.Sprintf("%s/%s/%s_%s_%s.tfstate", wp, prefix, wp, prefix, initDir)
+
 	tCfg := fmt.Sprintf(
 		terragruntConfigTempl,
-		c.String(flags.S3StateBacket),
-		fmt.Sprintf("%s/%s/%s_%s_%s.tfstate", wp, prefix, wp, prefix, CurrentDir()),
+		c.String(flags.S3StateBucket),
+		terraformStatePath,
 		c.String(flags.Region),
-		c.String(flags.DynamodbLockTable),
+		c.String(flags.DynamoDBLockTable),
 		c.String(flags.AuditProfile),
 	)
 
-	err = ioutil.WriteFile(terragruntConfigName, []byte(tCfg), 0777)
+	if err := os.RemoveAll(terraformDirPath); !os.IsNotExist(err) && err != nil {
+		return fmt.Errorf("delete .terraform error: %+v", err)
+	}
+
+	if err := os.RemoveAll(terragruntConfigPath); !os.IsNotExist(err) && err != nil {
+		return fmt.Errorf("delete %s error: %+v", TerragruntConfigName, err)
+	}
+
+	err := ioutil.WriteFile(terragruntConfigPath, []byte(tCfg), 0777)
 	if err != nil {
-		cli.Exit("creating terragrunt config error", 1)
 		return fmt.Errorf("creating terragrunt config error: %+v", err)
 	}
 
-	cmdInit := exec.Command("terragrunt", "init", "--terragrunt-config", terragruntConfigName)
+	return execute([]string{"init", "--terragrunt-config", terragruntConfigPath}, c, opts...)
+}
 
-	outInit, err := cmdInit.CombinedOutput()
-	if err != nil {
-		cli.Exit("terragrunt init error", 1)
-		return fmt.Errorf("terragrunt error: %+v \n %s", err, outInit)
+func getPaths(path string) (string, string) {
+	if path != "" {
+		initPath := strings.Split(path, "/")
+		return initPath[len(initPath)-1], path
 	}
 
-	return nil
+	return CurrentDir(), currentPath()
 }

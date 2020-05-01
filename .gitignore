@@ -3,3 +3,7 @@ terragrunt.hcl
 vendor
 .idea
 cmd
+.env
+
+**/.terraform/
+**/test.yaml

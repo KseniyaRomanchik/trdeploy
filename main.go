@@ -1,30 +1,35 @@
 package main
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
-	"log"
 	"os"
 	"trdeploy/commands"
 	"trdeploy/flags"
 )
 
-func main() {
+func init() {
+	log.SetFormatter(&log.TextFormatter{})
+	log.SetOutput(os.Stdout)
+
 	err := flags.LoadFlags()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	commands.LoadCommands()
+}
 
+func main() {
 	app := &cli.App{
 		Name:     "trdeploy",
-		Usage:    "./trdeploy {command} --work_profile {aws} --prefix {prefix}  --arg1 value1  --arg2 value2",
-		Version:  "0.0.1",
+		Usage:    "trdeploy {command} --work_profile {aws} --prefix {prefix}  --arg1 value1  --arg2 value2",
+		Version:  "0.1.0",
 		Flags:    flags.Flags,
 		Commands: commands.Commands,
 	}
 
-	err = app.Run(os.Args)
+	err := app.Run(os.Args)
 	if err != nil {
 		log.Fatal(err)
 	}

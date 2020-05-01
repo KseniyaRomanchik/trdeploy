@@ -1,0 +1,5 @@
+vpc_default_cidr="10.0.0.0/16"
+subnet_1_pub_default="10.0.0.0/19"
+subnet_2_pub_default="10.0.32.0/19"
+subnet_3_pub_default="10.0.64.0/19"
+subnet_4_pub_default="10.0.96.0/19"
