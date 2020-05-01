@@ -36,12 +36,19 @@ jobs:
         TERRAGRUNT_CONFIG_NAME: "terragrunt.hcl"
         TERRAFORM_DIR: ".terraform"
         CONFIG_FILE_NAME: trdeploy
-    - name: check
-      run: ls -la
-    - uses: actions/upload-artifact@v2
+#     - name: check
+#       run: ls -la
+#     - uses: actions/upload-artifact@v2
+#       with:
+#         name: artifact
+#         path: cmd/trdeploy
+    - uses: xresloader/upload-to-github-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        name: artifact
-        path: cmd/trdeploy
+        file: "cmd/trdeploy"
+        tags: true
+        draft: true
 
 #   deploy:
 #     name: deploy
