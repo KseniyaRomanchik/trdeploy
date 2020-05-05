@@ -1,7 +1,7 @@
 trdeploy
 ================================
 
-![build](https://github.com/KseniyaRomanchik/trdeploy/workflows/trdeploy/badge.svg?branch=ci&event=push)
+![build](https://github.com/KseniyaRomanchik/trdeploy/workflows/trdeploy/badge.svg?branch=master&event=push)
 
 #### Commands
 
