@@ -71,6 +71,8 @@ trdeploy
 
 `trdeploy pipe destroy --work-profile=work --prefix=trdeploy --pipeline-file=test.yaml`
 
+`trdeploy pipe deploy --work-profile=prod --prefix=default --pipeline-file=prod.yaml --multithread=true`
+
 `trdeploy apply --work-profile=work --prefix=trdeploy`
 
 #### Config
